@@ -4,13 +4,13 @@
 
 void setup();
 void run();
-void exit_game();
+void exit_game(int code);
 
 int main(int argc, char **argv) {
     (void)argc, (void)argv;
     setup();
     run();
-    exit_game();
+    exit_game(EXIT_SUCCESS);
 }
 
 void setup() {
@@ -60,6 +60,21 @@ void run() {
     bool orange_portal_set = false;
 
     int player_choice = display_menu(rows, cols);
+    switch (player_choice) {
+        case MENU_CHOICE_PLAY:
+            break;
+        case MENU_CHOICE_SETTINGS:
+            // TODO
+            break;
+        case MENU_CHOICE_HELP:
+            // TODO
+            break;
+        case MENU_CHOICE_EXIT:
+            exit_game(EXIT_SUCCESS);
+            break;
+        default:
+            break;
+    }
 
     /* TODO */
     // refactor
@@ -229,7 +244,10 @@ void run() {
     } while (move != QUIT_KEY);
 }
 
-void exit_game() { endwin(); }
+void exit_game(int code) {
+    endwin();
+    exit(code);
+}
 
 void print_game_title(const int ctr_row, const int ctr_col) {
     char *title[7];
@@ -309,11 +327,23 @@ int display_menu(const int rows, const int cols) {
             print_menu_choice((rows / 2) - 2 + (i * 3), (cols / 2), options[i],
                               false);
         }
-        getch();
-        selected = true;
+        switch (getch()) {
+            case 'w':
+                choice_index--;
+                if (choice_index < 0) choice_index = 0;
+                break;
+            case 's':
+                choice_index++;
+                if (choice_index > 3) choice_index = 3;
+                break;
+            case '\n':
+                selected = true;
+                break;
+            default:
+                break;
+        }
     } while (!selected);
-
-    return choice;
+    return choice_index;
 }
 
 void init_grid(const int rows, const int cols, char grid[rows][cols]) {

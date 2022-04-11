@@ -45,7 +45,11 @@
 #define MENU_COLS 80
 #define MENU_CHOICE_COLS (MENU_COLS - 8)
 
-typedef enum menu_choice { PLAY, SETTINGS, HELP, QUIT } MenuChoice;
+#define MENU_CHOICE_PLAY 0
+#define MENU_CHOICE_SETTINGS 1
+#define MENU_CHOICE_HELP 2
+#define MENU_CHOICE_EXIT 3
+
 typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
