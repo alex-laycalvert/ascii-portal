@@ -85,22 +85,48 @@ void run() {
     // the game loop
     char move;
     do {
+        int tmp_row = -1;
+        int tmp_col = -1;
         switch (look_dir) {
             case UP:
-                if (player_row - 1 > 0)
-                    grid[player_row - 1][player_col] = LOOK_UP;
+                tmp_row = player_row - 1;
+                tmp_col = player_col;
+                if (tmp_row - 1 < 0) break;
+                while (tmp_row - 1 > 0) {
+                    grid[tmp_row][tmp_col] = '|';
+                    tmp_row--;
+                }
+                grid[tmp_row][tmp_col] = LOOK_UP;
                 break;
             case DOWN:
-                if (player_row + 1 < rows - 1)
-                    grid[player_row + 1][player_col] = LOOK_DOWN;
+                tmp_row = player_row + 1;
+                tmp_col = player_col;
+                if (tmp_row + 1 > rows - 1) break;
+                while (tmp_row + 1 < rows - 1) {
+                    grid[tmp_row][tmp_col] = '|';
+                    tmp_row++;
+                }
+                grid[tmp_row][tmp_col] = LOOK_DOWN;
                 break;
             case LEFT:
-                if (player_col - 1 > 0)
-                    grid[player_row][player_col - 1] = LOOK_LEFT;
+                tmp_row = player_row;
+                tmp_col = player_col - 1;
+                if (tmp_col - 1 < 0) break;
+                while (tmp_col - 1 > 0) {
+                    grid[tmp_row][tmp_col] = '-';
+                    tmp_col--;
+                }
+                grid[tmp_row][tmp_col] = LOOK_LEFT;
                 break;
             case RIGHT:
-                if (player_col + 1 < cols - 1)
-                    grid[player_row][player_col + 1] = LOOK_RIGHT;
+                tmp_row = player_row;
+                tmp_col = player_col + 1;
+                if (tmp_col + 1 > cols - 1) break;
+                while (tmp_col + 1 < cols - 1) {
+                    grid[tmp_row][tmp_col] = '-';
+                    tmp_col++;
+                }
+                grid[tmp_row][tmp_col] = LOOK_RIGHT;
                 break;
             default:
                 break;
@@ -116,33 +142,45 @@ void run() {
         grid[player_row][player_col] = EMPTY;
         switch (look_dir) {
             case UP:
-                if (player_row - 1 <= 0)
-                    grid[player_row - 1][player_col] = WALL;
-                else
-                    grid[player_row - 1][player_col] = EMPTY;
+                tmp_row = player_row - 1;
+                tmp_col = player_col;
+                if (tmp_row - 1 < 0) break;
+                while (tmp_row > 0) {
+                    grid[tmp_row][tmp_col] = EMPTY;
+                    tmp_row--;
+                }
                 break;
             case DOWN:
-                if (player_row + 1 >= rows - 1)
-                    grid[player_row + 1][player_col] = WALL;
-                else
-                    grid[player_row + 1][player_col] = EMPTY;
+                tmp_row = player_row + 1;
+                tmp_col = player_col;
+                if (tmp_row + 1 > rows - 1) break;
+                while (tmp_row < rows - 1) {
+                    grid[tmp_row][tmp_col] = EMPTY;
+                    tmp_row++;
+                }
                 break;
             case LEFT:
-                if (player_col - 1 <= 0)
-                    grid[player_row][player_col - 1] = WALL;
-                else
-                    grid[player_row][player_col - 1] = EMPTY;
+                tmp_row = player_row;
+                tmp_col = player_col - 1;
+                if (tmp_col - 1 < 0) break;
+                while (tmp_col > 0) {
+                    grid[tmp_row][tmp_col] = EMPTY;
+                    tmp_col--;
+                }
                 break;
             case RIGHT:
-                if (player_col + 1 >= cols - 1)
-                    grid[player_row][player_col + 1] = WALL;
-                else
-                    grid[player_row][player_col + 1] = EMPTY;
+                tmp_row = player_row;
+                tmp_col = player_col + 1;
+                if (tmp_col + 1 > cols - 1) break;
+                while (tmp_col < cols - 1) {
+                    grid[tmp_row][tmp_col] = EMPTY;
+                    tmp_col++;
+                }
                 break;
             default:
                 break;
         }
-        
+
         switch (move) {
             case LOOK_UP_KEY:
                 look_dir = UP;
