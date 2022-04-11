@@ -62,3 +62,7 @@ press Tab.
 
 Walking into a portal will transport you to the opposite colored portal,
 assuming it has been set.
+
+## Contributors
+
+- [zeGolem](https://github.com/zeGolem)
