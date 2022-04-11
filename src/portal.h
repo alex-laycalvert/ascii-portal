@@ -1,3 +1,4 @@
+// Copyright 2021 Alexander Lay-Calvert
 #ifndef PORTAL_H_
 #define PORTAL_H_
 
@@ -39,25 +40,10 @@
 #define PLAYER_COLOR_PAIR 3
 #define BLUE_PORTAL_COLOR_PAIR 4
 #define ORANGE_PORTAL_COLOR_PAIR 5
-#define MENU_SELECTED_COLOR_PAIR 6
-
-#define MENU_ROWS 30
-#define MENU_COLS 80
-#define MENU_CHOICE_COLS (MENU_COLS - 8)
-
-#define MENU_CHOICE_PLAY 0
-#define MENU_CHOICE_SETTINGS 1
-#define MENU_CHOICE_HELP 2
-#define MENU_CHOICE_EXIT 3
 
 typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
-void print_game_title(const int ctr_row, const int ctr_col);
-void print_menu_choice(const int ctr_row, const int ctr_col, const char *choice,
-                       const bool selected);
-void clear_menu_space(const int rows, const int cols);
-int display_menu(const int rows, const int cols);
 void init_grid(const int rows, const int cols, char grid[rows][cols]);
 void print_grid(const int rows, const int cols, const char grid[rows][cols]);
 
