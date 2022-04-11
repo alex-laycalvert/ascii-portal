@@ -90,11 +90,14 @@ void run() {
         int tmp_col = -1;
         look_row = -1;
         look_col = -1;
+        if (blue_portal_set)
+            grid[blue_portal_row][blue_portal_col] = BLUE_PORTAL;
+        if (orange_portal_set)
+            grid[orange_portal_row][orange_portal_col] = ORANGE_PORTAL;
         switch (look_dir) {
             case UP:
-                tmp_row = player_row - 1;
+                tmp_row = player_row;
                 tmp_col = player_col;
-                if (tmp_row - 1 < 0) break;
                 while (grid[tmp_row - 1][tmp_col] == EMPTY) {
                     grid[tmp_row][tmp_col] = '|';
                     tmp_row--;
@@ -104,9 +107,8 @@ void run() {
                 look_col = tmp_col;
                 break;
             case DOWN:
-                tmp_row = player_row + 1;
+                tmp_row = player_row;
                 tmp_col = player_col;
-                if (tmp_row + 1 > rows - 1) break;
                 while (grid[tmp_row + 1][tmp_col] == EMPTY) {
                     grid[tmp_row][tmp_col] = '|';
                     tmp_row++;
@@ -117,8 +119,7 @@ void run() {
                 break;
             case LEFT:
                 tmp_row = player_row;
-                tmp_col = player_col - 1;
-                if (tmp_col - 1 < 0) break;
+                tmp_col = player_col;
                 while (grid[tmp_row][tmp_col - 1] == EMPTY) {
                     grid[tmp_row][tmp_col] = '-';
                     tmp_col--;
@@ -129,8 +130,7 @@ void run() {
                 break;
             case RIGHT:
                 tmp_row = player_row;
-                tmp_col = player_col + 1;
-                if (tmp_col + 1 > cols - 1) break;
+                tmp_col = player_col;
                 while (grid[tmp_row][tmp_col + 1] == EMPTY) {
                     grid[tmp_row][tmp_col] = '-';
                     tmp_col++;
@@ -142,54 +142,32 @@ void run() {
             default:
                 break;
         }
-        if (blue_portal_set)
-            grid[blue_portal_row][blue_portal_col] = BLUE_PORTAL;
-        if (orange_portal_set)
-            grid[orange_portal_row][orange_portal_col] = ORANGE_PORTAL;
         grid[player_row][player_col] = PLAYER;
         print_grid(rows, cols, grid);
         move(0, 0);
         move = getch();
         grid[player_row][player_col] = EMPTY;
-        switch (look_dir) {
-            case UP:
-                tmp_row = player_row - 1;
-                tmp_col = player_col;
-                if (tmp_row - 1 < look_row) break;
-                while (tmp_row > 0) {
-                    grid[tmp_row][tmp_col] = EMPTY;
-                    tmp_row--;
-                }
-                break;
-            case DOWN:
-                tmp_row = player_row + 1;
-                tmp_col = player_col;
-                if (tmp_row + 1 > look_row) break;
-                while (tmp_row < rows - 1) {
-                    grid[tmp_row][tmp_col] = EMPTY;
-                    tmp_row++;
-                }
-                break;
-            case LEFT:
-                tmp_row = player_row;
-                tmp_col = player_col - 1;
-                if (tmp_col - 1 < look_col) break;
-                while (tmp_col > 0) {
-                    grid[tmp_row][tmp_col] = EMPTY;
-                    tmp_col--;
-                }
-                break;
-            case RIGHT:
-                tmp_row = player_row;
-                tmp_col = player_col + 1;
-                if (tmp_col + 1 > look_col) break;
-                while (tmp_col < cols - 1) {
-                    grid[tmp_row][tmp_col] = EMPTY;
-                    tmp_col++;
-                }
-                break;
-            default:
-                break;
+        if (look_row > 0 && look_col > 0) {
+            switch (look_dir) {
+                case UP:
+                    for (int i = player_row - 1; i >= look_row; i--)
+                        grid[i][look_col] = EMPTY;
+                    break;
+                case DOWN:
+                    for (int i = player_row + 1; i <= look_row; i++)
+                        grid[i][look_col] = EMPTY;
+                    break;
+                case LEFT:
+                    for (int i = player_col - 1; i >= look_col; i--)
+                        grid[look_row][i] = EMPTY;
+                    break;
+                case RIGHT:
+                    for (int i = player_col + 1; i <= look_col; i++)
+                        grid[look_row][i] = EMPTY;
+                    break;
+                default:
+                    break;
+            }
         }
 
         switch (move) {
