@@ -2,8 +2,8 @@
 #define PORTAL_H_
 
 #include <ncurses.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define WALL 'I'
 #define PLAYER 'X'
@@ -45,5 +45,4 @@ typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 void init_grid(const int rows, const int cols, char grid[rows][cols]);
 void print_grid(const int rows, const int cols, char grid[rows][cols]);
 
-#endif //PORTAL_H_
-
+#endif // PORTAL_H_

@@ -1,0 +1,7 @@
+IndentWidth: 4
+UseTab: Never
+IndentCaseLabels: true
+
+AllowShortLoopsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
