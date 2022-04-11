@@ -2,9 +2,18 @@
 #include "portal.h"
 #include <stdlib.h>
 
+void setup();
+void run();
+void exit_game();
+
 int main(int argc, char **argv) {
     (void)argc, (void)argv;
+    setup();
+    run();
+    exit_game();
+}
 
+void setup() {
     // ncurses initialization
     initscr();
     noecho();
@@ -15,7 +24,7 @@ int main(int argc, char **argv) {
     // damn that sucks
     if (!has_colors()) {
         endwin();
-        printf("Your terminal does not support colors\n");
+        fprintf(stderr, "Your terminal does not support colors\n");
         exit(1);
     }
 
@@ -27,7 +36,9 @@ int main(int argc, char **argv) {
     init_pair(PLAYER_COLOR_PAIR, COLOR_GREEN, COLOR_GREEN);
     init_pair(BLUE_PORTAL_COLOR_PAIR, COLOR_BLUE, COLOR_BLUE);
     init_pair(ORANGE_PORTAL_COLOR_PAIR, COLOR_RED, COLOR_RED);
+}
 
+void run() {
     // getting terminal size info
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
@@ -211,6 +222,9 @@ int main(int argc, char **argv) {
             }
         }
     } while (move != QUIT_KEY);
+}
+
+void exit_game() {
     endwin();
 }
 
