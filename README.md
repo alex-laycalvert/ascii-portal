@@ -22,6 +22,9 @@ make
 # Optionally build using gcc
 gcc src/main.c -lncurses -o portal
 
+# Or make a dev build if you want to contribute
+make dev
+
 # Run
 ./portal
 
