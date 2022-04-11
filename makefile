@@ -5,3 +5,4 @@ dev:
 clean:
 	rm -f ./portal
 	rm -f ./portal.dev
+	rm -rf ./portal.dev.dSYM
