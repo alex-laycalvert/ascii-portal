@@ -42,7 +42,7 @@
 typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
-void init_grid(const int rows, const int cols, char grid[rows][cols]);
-void print_grid(const int rows, const int cols, char grid[rows][cols]);
+char **init_grid(const int rows, const int cols);
+void print_grid(const int rows, const int cols, char **grid);
 
 #endif // PORTAL_H_

@@ -1,5 +1,6 @@
 // Copyright 2021 Alexander Lay-Calvert
 #include "portal.h"
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
     // ncurses initialization
@@ -29,8 +30,7 @@ int main(int argc, char **argv) {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
-    char grid[rows][cols];
-    init_grid(rows, cols, grid);
+    char **grid = init_grid(rows, cols);
 
     char empty_row[cols];
     for (int i = 0; i < cols; i++) empty_row[i] = EMPTY;
@@ -215,7 +215,14 @@ int main(int argc, char **argv) {
     endwin();
 }
 
-void init_grid(const int rows, const int cols, char grid[rows][cols]) {
+char **init_grid(const int rows, const int cols) {
+    // Initialize the grid in memory
+    char **grid = malloc(sizeof(char *) * rows);
+    for (int i = 0; i < rows; ++i) {
+        // Create each row
+        grid[i] = malloc(sizeof(char) * cols);
+    }
+
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++) grid[i][j] = EMPTY;
     for (int i = 0; i < rows; i++) {
@@ -226,9 +233,11 @@ void init_grid(const int rows, const int cols, char grid[rows][cols]) {
         grid[0][i] = WALL;
         grid[rows - 1][i] = WALL;
     }
+
+    return grid;
 }
 
-void print_grid(const int rows, const int cols, char grid[rows][cols]) {
+void print_grid(const int rows, const int cols, char **grid) {
     for (int i = 0; i < rows; i++) mvprintw(i, 0, "%s", grid[i]);
 
     for (int i = 0; i < rows; i++) {
