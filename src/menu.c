@@ -79,15 +79,15 @@ int display_menu(const int rows, const int cols) {
                               false);
         }
         switch (getch()) {
-            case 'w':
+            case KEY_UP:
                 choice_index--;
                 if (choice_index < 0) choice_index = 0;
                 break;
-            case 's':
+            case KEY_DOWN:
                 choice_index++;
                 if (choice_index > 3) choice_index = 3;
                 break;
-            case '\n':
+            case MENU_CHOOSE:
                 selected = true;
                 break;
             default:

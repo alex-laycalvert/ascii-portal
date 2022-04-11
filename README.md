@@ -36,7 +36,7 @@ make dev
 On Windows:
 
 ```bash
-# Sorry (maybe coming soon...)
+# Sorry (maybe coming soon... probably not)
 ```
 
 ## Gameplay
@@ -53,17 +53,12 @@ To move, use the keybindings:
 - D (Right)
 
 To change the direction you're looking (the arrow around your character) use
-the keybindings:
-
-- H (Left)
-- J (Down)
-- K (Up)
-- L (Right)
+the arrow keys.
 
 To shoot a portal, press Space.
 
-The default portal you shoot is the blue portal, to toggle to the orange portal,
-press P.
+The default portal you shoot is the blue portal, to toggle which portal you shoot,
+press Tab.
 
 Walking into a portal will transport you to the opposite colored portal,
 assuming it has been set.

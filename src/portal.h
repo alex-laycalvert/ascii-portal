@@ -22,10 +22,10 @@
 
 #define QUIT_KEY 'q'
 
-#define LOOK_UP_KEY 'k'
-#define LOOK_DOWN_KEY 'j'
-#define LOOK_LEFT_KEY 'h'
-#define LOOK_RIGHT_KEY 'l'
+#define LOOK_UP_KEY (char)KEY_UP
+#define LOOK_DOWN_KEY (char)KEY_DOWN
+#define LOOK_LEFT_KEY (char)KEY_LEFT
+#define LOOK_RIGHT_KEY (char)KEY_RIGHT
 
 #define MOVE_UP_KEY 'w'
 #define MOVE_DOWN_KEY 's'
@@ -33,7 +33,7 @@
 #define MOVE_RIGHT_KEY 'd'
 
 #define SHOOT_PORTAL_KEY ' '
-#define TOGGLE_CURR_PORTAL_KEY 'p'
+#define TOGGLE_CURR_PORTAL_KEY '\t'
 
 #define EMPTY_COLOR_PAIR 1
 #define WALL_COLOR_PAIR 2

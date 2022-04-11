@@ -142,6 +142,7 @@ void run() {
             default:
                 break;
         }
+        
         switch (move) {
             case LOOK_UP_KEY:
                 look_dir = UP;

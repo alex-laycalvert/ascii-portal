@@ -9,6 +9,9 @@
 #define MENU_BORDER_COLOR_PAIR 7
 
 #define MENU_BORDER 'I'
+#define MENU_UP (char)KEY_UP
+#define MENU_DOWN (char)KEY_DOWN
+#define MENU_CHOOSE '\n'
 
 #define MENU_ROWS 30
 #define MENU_COLS 80
