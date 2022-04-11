@@ -43,7 +43,8 @@ void run() {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
-    char **grid = init_grid(rows, cols);
+    char grid[rows][cols];
+    init_grid(rows, cols, grid);
 
     Direction look_dir = UP;
     int player_row = rows / 2;
@@ -60,6 +61,7 @@ void run() {
     /* TODO */
     // refactor
     // add features/levels
+    // pretty much everything
 
     // the game loop
     char move;
@@ -228,16 +230,12 @@ void exit_game() {
     endwin();
 }
 
-char **init_grid(const int rows, const int cols) {
-    // Initialize the grid in memory
-    char **grid = malloc(sizeof(char *) * rows);
-    for (int i = 0; i < rows; ++i) {
-        // Create each row
-        grid[i] = malloc(sizeof(char) * cols);
-    }
-
+void init_grid(const int rows, const int cols, char grid[rows][cols]) {
+    // empty everything before adding chars
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++) grid[i][j] = EMPTY;
+
+    // add walls
     for (int i = 0; i < rows; i++) {
         grid[i][0] = WALL;
         grid[i][cols - 1] = WALL;
@@ -246,17 +244,9 @@ char **init_grid(const int rows, const int cols) {
         grid[0][i] = WALL;
         grid[rows - 1][i] = WALL;
     }
-
-    return grid;
 }
 
-void print_grid(const int rows, const int cols, char **grid) {
-    for (int i = 0; i < rows; i++) {
-        // We need to render character by character because we aren't using C
-        // strings (the rows aren't NULL-terminated)
-        for (int j = 0; j < cols; ++j) mvprintw(i, 0, "%c", grid[i][j]);
-    }
-
+void print_grid(const int rows, const int cols, const char grid[rows][cols]) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             attron(A_BOLD);
