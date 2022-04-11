@@ -10,11 +10,14 @@ This game uses the ncurses library and terminal colors.
 
 ## Installation and Running
 
-On Linux (and macOS?):
+On Linux (and macOS):
 
 ```bash
 # Clone the repository
 git clone https://github.com/alex-laycalvert/ascii-portal.git
+
+# cd yourself into the repo directory
+cd /path/to/where/you/cloned/ascii-portal
 
 # Build using make
 make
