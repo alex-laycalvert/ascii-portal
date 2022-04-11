@@ -8,6 +8,8 @@ work in progress.
 
 This game uses the ncurses library and terminal colors.
 
+![ascii-portal demo GIF](./DEMO.gif)
+
 ## Installation and Running
 
 On Linux (and macOS):
