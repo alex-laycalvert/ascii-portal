@@ -1,4 +1,3 @@
-// Copyright 2021 Alexander Lay-Calvert
 #ifndef MENU_H_
 #define MENU_H_
 

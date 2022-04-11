@@ -1,20 +1,15 @@
-// Copyright 2021 Alexander Lay-Calvert
 #include "portal.h"
 
-void init_grid(const int rows, const int cols, char grid[rows][cols]) {
+void init_grid(const int level, const int rows, const int cols,
+               char grid[rows][cols]) {
     // empty everything before adding chars
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++) grid[i][j] = EMPTY;
-
-    // add walls
-    for (int i = 0; i < rows; i++) {
-        grid[i][0] = WALL;
-        grid[i][cols - 1] = WALL;
-    }
-    for (int i = 0; i < cols; i++) {
-        grid[0][i] = WALL;
-        grid[rows - 1][i] = WALL;
-    }
+    if (level == 0) init_level_000(rows, cols, grid);
+    if (level == 2) init_level_000(rows, cols, grid); // TODO
+    if (level == 3) init_level_000(rows, cols, grid); // TODO
+    if (level == 4) init_level_000(rows, cols, grid); // TODO
+    if (level == 5) init_level_000(rows, cols, grid); // TODO
 }
 
 void print_grid(const int rows, const int cols, const char grid[rows][cols]) {

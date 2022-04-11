@@ -1,24 +1,12 @@
-// Copyright 2021 Alexander Lay-Calvert
 #ifndef PORTAL_H_
 #define PORTAL_H_
 
+#include "levels.h"
+#include "portal_chars.h"
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define WALL 'I'
-#define PLAYER 'X'
-#define EMPTY ' '
-
-#define BLUE_PORTAL 'B'
-#define ORANGE_PORTAL 'R'
-#define PORTAL 'O'
-
-#define LOOK_UP '^'
-#define LOOK_DOWN 'v'
-#define LOOK_LEFT '<'
-#define LOOK_RIGHT '>'
 
 #define QUIT_KEY 'q'
 
@@ -44,7 +32,8 @@
 typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
-void init_grid(const int rows, const int cols, char grid[rows][cols]);
+void init_grid(const int level, const int rows, const int cols,
+               char grid[rows][cols]);
 void print_grid(const int rows, const int cols, const char grid[rows][cols]);
 
 #endif // PORTAL_H_
