@@ -238,7 +238,11 @@ char **init_grid(const int rows, const int cols) {
 }
 
 void print_grid(const int rows, const int cols, char **grid) {
-    for (int i = 0; i < rows; i++) mvprintw(i, 0, "%s", grid[i]);
+    for (int i = 0; i < rows; i++) {
+        // We need to render character by character because we aren't using C
+        // strings (the rows aren't NULL-terminated)
+        for (int j = 0; j < cols; ++j) mvprintw(i, 0, "%c", grid[i][j]);
+    }
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
