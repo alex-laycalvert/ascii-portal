@@ -40,34 +40,34 @@ void clear_menu_space(const int rows, const int cols) {
 }
 
 int display_menu(const int rows, const int cols) {
-    clear_menu_space(rows, cols);
-    // menu borders
-    attron(COLOR_PAIR(MENU_BORDER_COLOR_PAIR));
-    for (int i = (rows / 2) - (MENU_ROWS / 2); i < (rows / 2) + (MENU_ROWS / 2);
-         i++) {
-        mvprintw(i, (cols / 2) - (MENU_COLS / 2), "%c", MENU_BORDER);
-        mvprintw(i, (cols / 2) + (MENU_COLS / 2) - 1, "%c", MENU_BORDER);
-    }
-    for (int i = (cols / 2) - (MENU_COLS / 2); i < (cols / 2) + (MENU_COLS / 2);
-         i++) {
-        mvprintw((rows / 2) - (MENU_ROWS / 2), i, "%c", MENU_BORDER);
-        mvprintw((rows / 2) + (MENU_ROWS / 2) - 1, i, "%c", MENU_BORDER);
-    }
-    attroff(COLOR_PAIR(MENU_BORDER_COLOR_PAIR));
-    print_game_title((rows / 2) - (MENU_ROWS / 2) + (MENU_ROWS / 6), cols / 2);
-    for (int i = 0; i < MENU_CHOICE_COLS; i++) {
-        mvprintw((rows / 2) - (MENU_ROWS / 6),
-                 (cols / 2) - (MENU_CHOICE_COLS / 2) + i, "~");
-    }
-    char *options[4];
-    options[0] = "P L A Y";
-    options[1] = "S E T T I N G S";
-    options[2] = "H E L P";
-    options[3] = "E X I T";
-
     bool selected = false;
     int choice_index = 0;
     do {
+        clear_menu_space(rows, cols);
+        // menu borders
+        attron(COLOR_PAIR(MENU_BORDER_COLOR_PAIR));
+        for (int i = (rows / 2) - (MENU_ROWS / 2);
+             i < (rows / 2) + (MENU_ROWS / 2); i++) {
+            mvprintw(i, (cols / 2) - (MENU_COLS / 2), "%c", MENU_BORDER);
+            mvprintw(i, (cols / 2) + (MENU_COLS / 2) - 1, "%c", MENU_BORDER);
+        }
+        for (int i = (cols / 2) - (MENU_COLS / 2);
+             i < (cols / 2) + (MENU_COLS / 2); i++) {
+            mvprintw((rows / 2) - (MENU_ROWS / 2), i, "%c", MENU_BORDER);
+            mvprintw((rows / 2) + (MENU_ROWS / 2) - 1, i, "%c", MENU_BORDER);
+        }
+        attroff(COLOR_PAIR(MENU_BORDER_COLOR_PAIR));
+        print_game_title((rows / 2) - (MENU_ROWS / 2) + (MENU_ROWS / 6),
+                         cols / 2);
+        for (int i = 0; i < MENU_CHOICE_COLS; i++) {
+            mvprintw((rows / 2) - (MENU_ROWS / 6),
+                     (cols / 2) - (MENU_CHOICE_COLS / 2) + i, "~");
+        }
+        char *options[4];
+        options[0] = "P L A Y";
+        options[1] = "S E T T I N G S";
+        options[2] = "H E L P";
+        options[3] = "E X I T";
         for (int i = 0; i < 4; i++) {
             if (i == choice_index) {
                 print_menu_choice((rows / 2) - 2 + (i * 3), (cols / 2),
