@@ -19,6 +19,14 @@ void init_level_000(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
+void play_level_000(const int rows, const int cols, char grid[rows][cols]) {
+    int player_row = rows / 2;
+    int player_col = cols / 2;
+
+    Direction look_dir = UP;
+    int look_row, look_col;
+}
+
 /*
  * Level 001: TODO
  *

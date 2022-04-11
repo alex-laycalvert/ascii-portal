@@ -1,7 +1,7 @@
 #ifndef PORTAL_H_
 #define PORTAL_H_
 
-#include "levels.h"
+#include "levels.h" 
 #include "portal_chars.h"
 #include <ncurses.h>
 #include <stdio.h>
@@ -28,9 +28,6 @@
 #define PLAYER_COLOR_PAIR 3
 #define BLUE_PORTAL_COLOR_PAIR 4
 #define ORANGE_PORTAL_COLOR_PAIR 5
-
-typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
-typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
 void init_grid(const int level, const int rows, const int cols,
                char grid[rows][cols]);

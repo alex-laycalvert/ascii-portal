@@ -53,7 +53,7 @@ void run() {
     int player_col = cols / 2;
     int look_row, look_col;
 
-    CurrentPortal curr_portal = BLUE;
+   CurrentPortal curr_portal = BLUE;
     int blue_portal_row = -1;
     int blue_portal_col = -1;
     int orange_portal_row = -1;
