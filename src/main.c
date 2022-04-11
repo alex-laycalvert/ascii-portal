@@ -224,59 +224,23 @@ void run() {
                     curr_portal = BLUE;
                 break;
             case SHOOT_PORTAL_KEY:
-                if (blue_portal_row > 0 && blue_portal_col > 0 &&
-                    curr_portal == BLUE)
-                    grid[blue_portal_row][blue_portal_col] = EMPTY;
-                if (orange_portal_row > 0 && orange_portal_col > 0 &&
-                    curr_portal == ORANGE)
-                    grid[orange_portal_row][orange_portal_col] = EMPTY;
-                int tmp_portal_row = -1;
-                int tmp_portal_col = -1;
-                switch (look_dir) {
-                    case UP:
-                        if (player_row - 1 == 0) break;
-                        tmp_portal_row = player_row - 1;
-                        tmp_portal_col = player_col;
-                        while (grid[tmp_portal_row - 1][tmp_portal_col] ==
-                               EMPTY)
-                            tmp_portal_row--;
-                        break;
-                    case DOWN:
-                        if (player_row + 1 == rows - 1) break;
-                        tmp_portal_row = player_row + 1;
-                        tmp_portal_col = player_col;
-                        while (grid[tmp_portal_row + 1][tmp_portal_col] ==
-                               EMPTY)
-                            tmp_portal_row++;
-                        break;
-                    case LEFT:
-                        if (player_col - 1 == 0) break;
-                        tmp_portal_col = player_col - 1;
-                        tmp_portal_row = player_row;
-                        while (grid[tmp_portal_row][tmp_portal_col - 1] ==
-                               EMPTY)
-                            tmp_portal_col--;
-                        break;
-                    case RIGHT:
-                        if (player_col + 1 == cols - 1) break;
-                        tmp_portal_col = player_col + 1;
-                        tmp_portal_row = player_row;
-                        while (grid[tmp_portal_row][tmp_portal_col + 1] ==
-                               EMPTY)
-                            tmp_portal_col++;
-                        break;
-                    default:
-                        break;
-                }
-                if (tmp_portal_row < 0 || tmp_portal_col < 0) break;
-                if (curr_portal == BLUE) {
-                    blue_portal_row = tmp_portal_row;
-                    blue_portal_col = tmp_portal_col;
-                    blue_portal_set = true;
-                } else {
-                    orange_portal_row = tmp_portal_row;
-                    orange_portal_col = tmp_portal_col;
-                    orange_portal_set = true;
+                if (look_row > 0 && look_col > 0) {
+                    if (blue_portal_row > 0 && blue_portal_col > 0 &&
+                        curr_portal == BLUE)
+                        grid[blue_portal_row][blue_portal_col] = EMPTY;
+                    if (orange_portal_row > 0 && orange_portal_col > 0 &&
+                        curr_portal == ORANGE)
+                        grid[orange_portal_row][orange_portal_col] = EMPTY;
+                    if (curr_portal == BLUE) {
+                        blue_portal_row = look_row;
+                        blue_portal_col = look_col;
+                        blue_portal_set = true;
+                    }
+                    if (curr_portal == ORANGE) {
+                        orange_portal_row = look_row;
+                        orange_portal_col = look_col;
+                        orange_portal_set = true;
+                    }
                 }
                 break;
         }
