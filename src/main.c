@@ -1,4 +1,3 @@
-// Copyright 2021 Alexander Lay-Calvert
 #include "menu.h"
 #include "portal.h"
 
@@ -46,11 +45,13 @@ void run() {
     getmaxyx(stdscr, rows, cols);
 
     char grid[rows][cols];
-    init_grid(rows, cols, grid);
+    int level = 0; // TODO let player choose level
+    init_grid(level, rows, cols, grid);
 
     Direction look_dir = UP;
     int player_row = rows / 2;
     int player_col = cols / 2;
+    int look_row, look_col;
 
     CurrentPortal curr_portal = BLUE;
     int blue_portal_row = -1;
@@ -87,46 +88,56 @@ void run() {
     do {
         int tmp_row = -1;
         int tmp_col = -1;
+        look_row = -1;
+        look_col = -1;
         switch (look_dir) {
             case UP:
                 tmp_row = player_row - 1;
                 tmp_col = player_col;
                 if (tmp_row - 1 < 0) break;
-                while (tmp_row - 1 > 0) {
+                while (grid[tmp_row - 1][tmp_col] == EMPTY) {
                     grid[tmp_row][tmp_col] = '|';
                     tmp_row--;
                 }
                 grid[tmp_row][tmp_col] = LOOK_UP;
+                look_row = tmp_row;
+                look_col = tmp_col;
                 break;
             case DOWN:
                 tmp_row = player_row + 1;
                 tmp_col = player_col;
                 if (tmp_row + 1 > rows - 1) break;
-                while (tmp_row + 1 < rows - 1) {
+                while (grid[tmp_row + 1][tmp_col] == EMPTY) {
                     grid[tmp_row][tmp_col] = '|';
                     tmp_row++;
                 }
                 grid[tmp_row][tmp_col] = LOOK_DOWN;
+                look_row = tmp_row;
+                look_col = tmp_col;
                 break;
             case LEFT:
                 tmp_row = player_row;
                 tmp_col = player_col - 1;
                 if (tmp_col - 1 < 0) break;
-                while (tmp_col - 1 > 0) {
+                while (grid[tmp_row][tmp_col - 1] == EMPTY) {
                     grid[tmp_row][tmp_col] = '-';
                     tmp_col--;
                 }
                 grid[tmp_row][tmp_col] = LOOK_LEFT;
+                look_row = tmp_row;
+                look_col = tmp_col;
                 break;
             case RIGHT:
                 tmp_row = player_row;
                 tmp_col = player_col + 1;
                 if (tmp_col + 1 > cols - 1) break;
-                while (tmp_col + 1 < cols - 1) {
+                while (grid[tmp_row][tmp_col + 1] == EMPTY) {
                     grid[tmp_row][tmp_col] = '-';
                     tmp_col++;
                 }
                 grid[tmp_row][tmp_col] = LOOK_RIGHT;
+                look_row = tmp_row;
+                look_col = tmp_col;
                 break;
             default:
                 break;
@@ -144,7 +155,7 @@ void run() {
             case UP:
                 tmp_row = player_row - 1;
                 tmp_col = player_col;
-                if (tmp_row - 1 < 0) break;
+                if (tmp_row - 1 < look_row) break;
                 while (tmp_row > 0) {
                     grid[tmp_row][tmp_col] = EMPTY;
                     tmp_row--;
@@ -153,7 +164,7 @@ void run() {
             case DOWN:
                 tmp_row = player_row + 1;
                 tmp_col = player_col;
-                if (tmp_row + 1 > rows - 1) break;
+                if (tmp_row + 1 > look_row) break;
                 while (tmp_row < rows - 1) {
                     grid[tmp_row][tmp_col] = EMPTY;
                     tmp_row++;
@@ -162,7 +173,7 @@ void run() {
             case LEFT:
                 tmp_row = player_row;
                 tmp_col = player_col - 1;
-                if (tmp_col - 1 < 0) break;
+                if (tmp_col - 1 < look_col) break;
                 while (tmp_col > 0) {
                     grid[tmp_row][tmp_col] = EMPTY;
                     tmp_col--;
@@ -171,7 +182,7 @@ void run() {
             case RIGHT:
                 tmp_row = player_row;
                 tmp_col = player_col + 1;
-                if (tmp_col + 1 > cols - 1) break;
+                if (tmp_col + 1 > look_col) break;
                 while (tmp_col < cols - 1) {
                     grid[tmp_row][tmp_col] = EMPTY;
                     tmp_col++;

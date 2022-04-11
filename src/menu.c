@@ -1,4 +1,3 @@
-// Copyright 2021 Alexander Lay-Calvert
 #include "menu.h"
 
 void print_game_title(const int ctr_row, const int ctr_col) {
@@ -90,6 +89,8 @@ int display_menu(const int rows, const int cols) {
             case MENU_CHOOSE:
                 selected = true;
                 break;
+            case 'q':
+                return MENU_CHOICE_EXIT;
             default:
                 break;
         }
