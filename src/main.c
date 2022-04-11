@@ -32,9 +32,6 @@ int main(int argc, char **argv) {
 
     char **grid = init_grid(rows, cols);
 
-    char empty_row[cols];
-    for (int i = 0; i < cols; i++) empty_row[i] = EMPTY;
-
     Direction look_dir = UP;
     int player_row = rows / 2;
     int player_col = cols / 2;
