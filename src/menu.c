@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "portal_chars.h"
 
 void print_game_title(const int ctr_row, const int ctr_col) {
     char *title[7];
@@ -31,14 +32,15 @@ void print_menu_choice(const int ctr_row, const int ctr_col, const char *choice,
 }
 
 void clear_menu_space(const int rows, const int cols) {
-    char empty_menu_row[cols];
-    for (int i = 0; i < MENU_ROWS; i++) empty_menu_row[i] = ' ';
-    for (int i = (rows / 2) - (MENU_ROWS / 2); i < (rows / 2) + (MENU_ROWS / 2);
-         i++) {
-        mvprintw(i, 0, "%s", empty_menu_row);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            mvprintw(i, j, " ");
+        }
     }
 }
 
+// TODO
+// handle settings and help menu's within this menu method, don't return
 int display_menu(const int rows, const int cols) {
     bool selected = false;
     int choice_index = 0;
