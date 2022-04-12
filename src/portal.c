@@ -307,15 +307,19 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
             // looking directions
             case KEY_UP:
                 looking = UP;
+                shooting = UP;
                 break;
             case KEY_DOWN:
                 looking = DOWN;
+                shooting = DOWN;
                 break;
             case KEY_LEFT:
                 looking = LEFT;
+                shooting = LEFT;
                 break;
             case KEY_RIGHT:
                 looking = RIGHT;
+                shooting = RIGHT;
                 break;
             // moving directions
             case MOVE_UP:
