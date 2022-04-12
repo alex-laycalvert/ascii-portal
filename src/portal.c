@@ -91,16 +91,15 @@ void print_grid(const int rows, const int cols, const char grid[rows][cols]) {
 }
 
 void clean_grid(const int rows, const int cols, char grid[rows][cols]) {
-    grid[player_row][player_col] = EMPTY;
     if (look_row <= 0 || look_col <= 0) return;
-    if (looking == UP) {
-        for (int i = look_row; i < player_row; i++) grid[i][look_col] = EMPTY;
-    } else if (looking == DOWN) {
-        for (int i = look_row; i > player_row; i--) grid[i][look_col] = EMPTY;
-    } else if (looking == LEFT) {
-        for (int i = look_col; i < player_col; i++) grid[look_row][i] = EMPTY;
-    } else if (looking == RIGHT) {
-        for (int i = look_col; i > player_col; i--) grid[look_row][i] = EMPTY;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (grid[i][j] == PLAYER || grid[i][j] == '-' ||
+                grid[i][j] == '|' || grid[i][j] == LOOK_UP ||
+                grid[i][j] == LOOK_DOWN || grid[i][j] == LOOK_LEFT ||
+                grid[i][j] == LOOK_RIGHT)
+                grid[i][j] = EMPTY;
+        }
     }
 }
 
@@ -149,6 +148,7 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     look_row = player_row;
     look_col = player_col;
     bool done = false;
+    shooting = looking;
     while (!done) {
         switch (shooting) {
             case UP:
@@ -163,10 +163,12 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
                     shooting = LEFT;
                     look_row--;
                 } else {
-                    if (grid[look_row][look_col] != F_REFLECTOR &&
-                        grid[look_row][look_col] != B_REFLECTOR)
-                        grid[look_row][look_col] = LOOK_UP;
                     done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_UP;
                 }
                 break;
             case DOWN:
@@ -181,10 +183,12 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
                     shooting = RIGHT;
                     look_row++;
                 } else {
-                    if (grid[look_row][look_col] != F_REFLECTOR &&
-                        grid[look_row][look_col] != B_REFLECTOR)
-                        grid[look_row][look_col] = LOOK_DOWN;
                     done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_DOWN;
                 }
                 break;
             case LEFT:
@@ -198,10 +202,12 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
                     shooting = UP;
                     look_col--;
                 } else {
-                    if (grid[look_row][look_col] != F_REFLECTOR &&
-                        grid[look_row][look_col] != B_REFLECTOR)
-                        grid[look_row][look_col] = LOOK_LEFT;
                     done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_LEFT;
                 }
                 break;
             case RIGHT:
@@ -215,10 +221,12 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
                     shooting = DOWN;
                     look_col++;
                 } else {
-                    if (grid[look_row][look_col] != F_REFLECTOR &&
-                        grid[look_row][look_col] != B_REFLECTOR)
-                        grid[look_row][look_col] = LOOK_RIGHT;
                     done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_RIGHT;
                 }
                 break;
         }
@@ -307,19 +315,15 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
             // looking directions
             case KEY_UP:
                 looking = UP;
-                shooting = UP;
                 break;
             case KEY_DOWN:
                 looking = DOWN;
-                shooting = DOWN;
                 break;
             case KEY_LEFT:
                 looking = LEFT;
-                shooting = LEFT;
                 break;
             case KEY_RIGHT:
                 looking = RIGHT;
-                shooting = RIGHT;
                 break;
             // moving directions
             case MOVE_UP:

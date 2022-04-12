@@ -8,7 +8,8 @@
  *
  * Strategy: Die alone.
  */
-InitPosition init_level_000(const int rows, const int cols, char grid[rows][cols]) {
+InitPosition init_level_000(const int rows, const int cols,
+                            char grid[rows][cols]) {
     // add walls
     for (int i = 0; i < rows; i++) {
         grid[i][0] = WALL;
@@ -31,7 +32,8 @@ InitPosition init_level_000(const int rows, const int cols, char grid[rows][cols
  *
  * Strategy: Come on dude
  */
-InitPosition init_level_001(const int rows, const int cols, char grid[rows][cols]) {
+InitPosition init_level_001(const int rows, const int cols,
+                            char grid[rows][cols]) {
     // add walls
     for (int i = 0; i < rows; i++) {
         grid[i][0] = WALL;
@@ -42,6 +44,7 @@ InitPosition init_level_001(const int rows, const int cols, char grid[rows][cols
         grid[rows - 1][i] = WALL;
     }
     grid[rows / 2][cols / 2] = END;
+    grid[(rows / 2) - (rows / 4)][cols / 2] = F_REFLECTOR;
     InitPosition init_pos;
     init_pos.row = 2;
     init_pos.col = 2;
