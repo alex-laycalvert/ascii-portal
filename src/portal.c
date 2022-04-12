@@ -8,11 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+InitPosition init_pos;
 int player_row, player_col;
 int look_row, look_col;
 int bportal_row, bportal_col;
 int oportal_row, oportal_col;
 bool bportal_set, oportal_set;
+bool reached_end;
 Direction looking;
 CurrentPortal curr_portal;
 
@@ -20,7 +22,8 @@ void init_level(const int level, const int rows, const int cols,
                 char grid[rows][cols]) {
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < cols; j++) grid[i][j] = EMPTY;
-    if (level == 0) init_level_000(rows, cols, grid);
+    if (level == 0) init_pos = init_level_000(rows, cols, grid);
+    if (level == 1) init_pos = init_level_001(rows, cols, grid);
 }
 
 void print_grid(const int rows, const int cols, const char grid[rows][cols]) {
@@ -72,6 +75,11 @@ void print_grid(const int rows, const int cols, const char grid[rows][cols]) {
                     attron(COLOR_PAIR(KEY_COLOR_PAIR));
                     mvprintw(i, j, "%c", grid[i][j]);
                     attroff(COLOR_PAIR(KEY_COLOR_PAIR));
+                    break;
+                case END:
+                    attron(COLOR_PAIR(END_COLOR_PAIR));
+                    mvprintw(i, j, "%c", grid[i][j]);
+                    attroff(COLOR_PAIR(END_COLOR_PAIR));
                     break;
                 default:
                     mvprintw(i, j, "%c", grid[i][j]);
@@ -197,7 +205,8 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     look_col = tmp_col;
 }
 
-void move_up(const int rows, const int cols, char grid[rows][cols]) {
+void move_up(const int rows, const int cols, const char grid[rows][cols]) {
+    if (grid[player_row - 1][player_col] == END) reached_end = true;
     if (player_row - 1 == bportal_row && player_col == bportal_col &&
         oportal_set) {
         player_row = oportal_row;
@@ -211,7 +220,8 @@ void move_up(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
-void move_down(const int rows, const int cols, char grid[rows][cols]) {
+void move_down(const int rows, const int cols, const char grid[rows][cols]) {
+    if (grid[player_row + 1][player_col] == END) reached_end = true;
     if (player_row + 1 == bportal_row && player_col == bportal_col &&
         oportal_set) {
         player_row = oportal_row;
@@ -225,7 +235,8 @@ void move_down(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
-void move_left(const int rows, const int cols, char grid[rows][cols]) {
+void move_left(const int rows, const int cols, const char grid[rows][cols]) {
+    if (grid[player_row][player_col - 1] == END) reached_end = true;
     if (player_row == bportal_row && player_col - 1 == bportal_col &&
         oportal_set) {
         player_row = oportal_row;
@@ -239,7 +250,8 @@ void move_left(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
-void move_right(const int rows, const int cols, char grid[rows][cols]) {
+void move_right(const int rows, const int cols, const char grid[rows][cols]) {
+    if (grid[player_row][player_col + 1] == END) reached_end = true;
     if (player_row == bportal_row && player_col + 1 == bportal_col &&
         oportal_set) {
         player_row = oportal_row;
@@ -254,8 +266,8 @@ void move_right(const int rows, const int cols, char grid[rows][cols]) {
 }
 
 void play(const int rows, const int cols, char grid[rows][cols]) {
-    player_row = rows / 2;
-    player_col = cols / 2;
+    player_row = init_pos.row;
+    player_col = init_pos.col;
     looking = UP;
     look_row = -1;
     look_col = -1;
@@ -263,6 +275,7 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
     oportal_set = false;
 
     bool keep_playing = true;
+    reached_end = false;
     int menu_choice;
     do {
         update_grid(rows, cols, grid);
@@ -323,5 +336,7 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
                 }
                 break;
         }
+        if (reached_end) keep_playing = false;
     } while (keep_playing);
+    printf("YOU WON!\n");
 }
