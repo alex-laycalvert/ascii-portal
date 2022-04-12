@@ -121,7 +121,8 @@ void recheck_aim(const int rows, const int cols, char grid[rows][cols]) {
 }
 
 void shoot_portal(const int rows, const int cols, char grid[rows][cols]) {
-    if (look_row <= 0 || look_col <= 0) return;
+    if (look_row <= 0 || look_col <= 0 || grid[look_row][look_col] != EMPTY)
+        return;
     if (curr_portal == BLUE) {
         if (bportal_set) {
             grid[bportal_row][bportal_col] = EMPTY;
@@ -145,6 +146,7 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     if (bportal_set) grid[bportal_row][bportal_col] = BLUE_PORTAL;
     if (oportal_set) grid[oportal_row][oportal_col] = ORANGE_PORTAL;
     grid[player_row][player_col] = PLAYER;
+    update_around_player(rows, cols, grid);
     look_row = player_row;
     look_col = player_col;
     bool done = false;
@@ -233,7 +235,7 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
-void move_up(const int rows, const int cols, const char grid[rows][cols]) {
+void move_up(const int rows, const int cols, char grid[rows][cols]) {
     if (grid[player_row - 1][player_col] == END) reached_end = true;
     if (player_row - 1 == bportal_row && player_col == bportal_col &&
         oportal_set) {
@@ -244,11 +246,25 @@ void move_up(const int rows, const int cols, const char grid[rows][cols]) {
         player_row = bportal_row;
         player_col = bportal_col;
     } else {
-        if (grid[player_row - 1][player_col] == EMPTY) player_row--;
+        if (grid[player_row - 1][player_col] == EMPTY) {
+            player_row--;
+            return;
+        }
+        int empty_row = player_row;
+        while (grid[empty_row - 1][player_col] != EMPTY && empty_row > 0) {
+            empty_row--;
+            if (!can_move_objects(rows, cols, grid, empty_row, player_col))
+                return;
+        }
+        empty_row--;
+        if (empty_row <= 0) return;
+        for (int i = empty_row; i < player_row - 1; i++)
+            grid[i][player_col] = grid[i + 1][player_col];
+        player_row--;
     }
 }
 
-void move_down(const int rows, const int cols, const char grid[rows][cols]) {
+void move_down(const int rows, const int cols, char grid[rows][cols]) {
     if (grid[player_row + 1][player_col] == END) reached_end = true;
     if (player_row + 1 == bportal_row && player_col == bportal_col &&
         oportal_set) {
@@ -259,11 +275,26 @@ void move_down(const int rows, const int cols, const char grid[rows][cols]) {
         player_row = bportal_row;
         player_col = bportal_col;
     } else {
-        if (grid[player_row + 1][player_col] == EMPTY) player_row++;
+        if (grid[player_row + 1][player_col] == EMPTY) {
+            player_row++;
+            return;
+        }
+        int empty_row = player_row;
+        while (grid[empty_row + 1][player_col] != EMPTY &&
+               empty_row < rows - 1) {
+            empty_row++;
+            if (!can_move_objects(rows, cols, grid, empty_row, player_col))
+                return;
+        }
+        empty_row++;
+        if (empty_row >= rows - 1) return;
+        for (int i = empty_row; i > player_row + 1; i--)
+            grid[i][player_col] = grid[i - 1][player_col];
+        player_row++;
     }
 }
 
-void move_left(const int rows, const int cols, const char grid[rows][cols]) {
+void move_left(const int rows, const int cols, char grid[rows][cols]) {
     if (grid[player_row][player_col - 1] == END) reached_end = true;
     if (player_row == bportal_row && player_col - 1 == bportal_col &&
         oportal_set) {
@@ -274,11 +305,25 @@ void move_left(const int rows, const int cols, const char grid[rows][cols]) {
         player_row = bportal_row;
         player_col = bportal_col;
     } else {
-        if (grid[player_row][player_col - 1] == EMPTY) player_col--;
+        if (grid[player_row][player_col - 1] == EMPTY) {
+            player_col--;
+            return;
+        }
+        int empty_col = player_col;
+        while (grid[player_row][empty_col - 1] != EMPTY && empty_col - 1 > 0) {
+            empty_col--;
+            if (!can_move_objects(rows, cols, grid, player_row, empty_col))
+                return;
+        }
+        empty_col--;
+        if (empty_col <= 0) return;
+        for (int i = empty_col; i < player_col - 1; i++)
+            grid[player_row][i] = grid[player_row][i + 1];
+        player_col--;
     }
 }
 
-void move_right(const int rows, const int cols, const char grid[rows][cols]) {
+void move_right(const int rows, const int cols, char grid[rows][cols]) {
     if (grid[player_row][player_col + 1] == END) reached_end = true;
     if (player_row == bportal_row && player_col + 1 == bportal_col &&
         oportal_set) {
@@ -289,7 +334,36 @@ void move_right(const int rows, const int cols, const char grid[rows][cols]) {
         player_row = bportal_row;
         player_col = bportal_col;
     } else {
-        if (grid[player_row][player_col + 1] == EMPTY) player_col++;
+        if (grid[player_row][player_col + 1] == EMPTY) {
+            player_col++;
+            return;
+        }
+        int empty_col = player_col;
+        while (grid[player_row][empty_col + 1] != EMPTY &&
+               empty_col + 1 < cols - 1) {
+            empty_col++;
+            if (!can_move_objects(rows, cols, grid, player_row, empty_col))
+                return;
+        }
+        empty_col++;
+        if (empty_col >= cols - 1) return;
+        for (int i = empty_col; i > player_col + 1; i--)
+            grid[player_row][i] = grid[player_row][i - 1];
+        player_col++;
+    }
+}
+
+void update_around_player(const int rows, const int cols,
+                          char grid[rows][cols]) {
+    for (int i = player_row - 1; i <= player_row + 1; i++) {
+        for (int j = player_col - 1; j <= player_col + 1; j++) {
+            int id = (i - player_row - 1) + ((j - player_col - 1) % 3);
+            if (id % 2 == 0) continue;
+            if (grid[i][j] == LEVER_OFF)
+                grid[i][j] = LEVER_ON;
+            else if (grid[i][j] == LEVER_ON)
+                grid[i][j] = LEVER_OFF;
+        }
     }
 }
 
@@ -369,3 +443,13 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
     } while (keep_playing);
     printf("YOU WON!\n");
 }
+
+bool can_move_objects(const int rows, const int cols,
+                      const char grid[rows][cols], const int row,
+                      const int col) {
+    return grid[row][col] != WALL && grid[row][col] != END &&
+           grid[row][col] != BLUE_PORTAL && grid[row][col] != ORANGE_PORTAL &&
+           grid[row][col] != LEVER_ON && grid[row][col] != LEVER_OFF &&
+           grid[row][col] != HOLD_BUTTON;
+}
+
