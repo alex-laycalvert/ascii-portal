@@ -234,6 +234,15 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
+bool can_move_objects(const int rows, const int cols,
+                      const char grid[rows][cols], const int row,
+                      const int col) {
+    return grid[row][col] != WALL && grid[row][col] != END &&
+           grid[row][col] != BLUE_PORTAL && grid[row][col] != ORANGE_PORTAL &&
+           grid[row][col] != LEVER_ON && grid[row][col] != LEVER_OFF &&
+           grid[row][col] != HOLD_BUTTON;
+}
+
 void move_up(const int rows, const int cols, char grid[rows][cols]) {
     if (grid[player_row - 1][player_col] == END) reached_end = true;
     if (player_row - 1 == bportal_row && player_col == bportal_col &&
@@ -251,10 +260,9 @@ void move_up(const int rows, const int cols, char grid[rows][cols]) {
         }
         int empty_row = player_row;
         while (grid[empty_row - 1][player_col] != EMPTY && empty_row > 0) {
-            if (grid[empty_row - 1][player_col] == END ||
-                grid[empty_row - 1][player_col] == WALL)
-                return;
             empty_row--;
+            if (!can_move_objects(rows, cols, grid, empty_row, player_col))
+                return;
         }
         empty_row--;
         if (empty_row <= 0) return;
@@ -282,11 +290,9 @@ void move_down(const int rows, const int cols, char grid[rows][cols]) {
         int empty_row = player_row;
         while (grid[empty_row + 1][player_col] != EMPTY &&
                empty_row < rows - 1) {
-
-            if (grid[empty_row + 1][player_col] == END ||
-                grid[empty_row + 1][player_col] == WALL)
-                return;
             empty_row++;
+            if (!can_move_objects(rows, cols, grid, empty_row, player_col))
+                return;
         }
         empty_row++;
         if (empty_row >= rows - 1) return;
@@ -313,10 +319,9 @@ void move_left(const int rows, const int cols, char grid[rows][cols]) {
         }
         int empty_col = player_col;
         while (grid[player_row][empty_col - 1] != EMPTY && empty_col - 1 > 0) {
-            if (grid[player_row][empty_col - 1] == END ||
-                grid[player_row][empty_col - 1] == WALL)
-                return;
             empty_col--;
+            if (!can_move_objects(rows, cols, grid, player_row, empty_col))
+                return;
         }
         empty_col--;
         if (empty_col <= 0) return;
@@ -344,10 +349,9 @@ void move_right(const int rows, const int cols, char grid[rows][cols]) {
         int empty_col = player_col;
         while (grid[player_row][empty_col + 1] != EMPTY &&
                empty_col + 1 < cols - 1) {
-            if (grid[player_row][empty_col + 1] == END ||
-                grid[player_row][empty_col + 1] == WALL)
-                return;
             empty_col++;
+            if (!can_move_objects(rows, cols, grid, player_row, empty_col))
+                return;
         }
         empty_col++;
         if (empty_col >= cols - 1) return;

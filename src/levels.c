@@ -46,6 +46,7 @@ InitPosition init_level_001(const int rows, const int cols,
     grid[rows - 10][cols - 10] = END;
     grid[rows / 4][cols / 2] = F_REFLECTOR;
     grid[3 * (rows / 4)][cols / 2] = B_REFLECTOR;
+    grid[3][3] = BLOCK;
     InitPosition init_pos;
     init_pos.row = rows / 2;
     init_pos.col = cols / 2;
