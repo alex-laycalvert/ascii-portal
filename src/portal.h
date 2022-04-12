@@ -1,8 +1,6 @@
 #ifndef PORTAL_H_
 #define PORTAL_H_
 
-#include "levels.h"
-#include "portal_chars.h"
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +17,6 @@
 #define MOVE_DOWN_KEY 's'
 #define MOVE_LEFT_KEY 'a'
 #define MOVE_RIGHT_KEY 'd'
-
 #define SHOOT_PORTAL_KEY ' '
 #define TOGGLE_CURR_PORTAL_KEY '\t'
 
@@ -32,8 +29,10 @@
 typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
-void init_grid(const int level, const int rows, const int cols,
-               char grid[rows][cols]);
+void init_level(const int level, const int rows, const int cols,
+                char grid[rows][cols]);
 void print_grid(const int rows, const int cols, const char grid[rows][cols]);
+void update_grid(const int rows, const int cols, char grid[rows][cols]);
+void play(const int rows, const int cols, char grid[rows][cols]);
 
 #endif // PORTAL_H_
