@@ -30,7 +30,7 @@ InitPosition init_level_000(const int rows, const int cols,
  *
  * Objective: Reach the end point.
  *
- * Strategy: It's literally just in the middle of the map
+ * Strategy: It's in the bottom right corner
  */
 InitPosition init_level_001(const int rows, const int cols,
                             char grid[rows][cols]) {
@@ -47,6 +47,7 @@ InitPosition init_level_001(const int rows, const int cols,
     grid[rows / 4][cols / 2] = F_REFLECTOR;
     grid[3 * (rows / 4)][cols / 2] = B_REFLECTOR;
     grid[3][3] = BLOCK;
+    grid[10][10] = LEVER_OFF;
     InitPosition init_pos;
     init_pos.row = rows / 2;
     init_pos.col = cols / 2;

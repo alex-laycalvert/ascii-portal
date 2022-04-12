@@ -146,6 +146,7 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     if (bportal_set) grid[bportal_row][bportal_col] = BLUE_PORTAL;
     if (oportal_set) grid[oportal_row][oportal_col] = ORANGE_PORTAL;
     grid[player_row][player_col] = PLAYER;
+    update_around_player(rows, cols, grid);
     look_row = player_row;
     look_col = player_col;
     bool done = false;
@@ -232,15 +233,6 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
                 break;
         }
     }
-}
-
-bool can_move_objects(const int rows, const int cols,
-                      const char grid[rows][cols], const int row,
-                      const int col) {
-    return grid[row][col] != WALL && grid[row][col] != END &&
-           grid[row][col] != BLUE_PORTAL && grid[row][col] != ORANGE_PORTAL &&
-           grid[row][col] != LEVER_ON && grid[row][col] != LEVER_OFF &&
-           grid[row][col] != HOLD_BUTTON;
 }
 
 void move_up(const int rows, const int cols, char grid[rows][cols]) {
@@ -361,6 +353,20 @@ void move_right(const int rows, const int cols, char grid[rows][cols]) {
     }
 }
 
+void update_around_player(const int rows, const int cols,
+                          char grid[rows][cols]) {
+    for (int i = player_row - 1; i <= player_row + 1; i++) {
+        for (int j = player_col - 1; j <= player_col + 1; j++) {
+            int id = (i - player_row - 1) + ((j - player_col - 1) % 3);
+            if (id % 2 == 0) continue;
+            if (grid[i][j] == LEVER_OFF)
+                grid[i][j] = LEVER_ON;
+            else if (grid[i][j] == LEVER_ON)
+                grid[i][j] = LEVER_OFF;
+        }
+    }
+}
+
 void play(const int rows, const int cols, char grid[rows][cols]) {
     player_row = init_pos.row;
     player_col = init_pos.col;
@@ -437,3 +443,13 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
     } while (keep_playing);
     printf("YOU WON!\n");
 }
+
+bool can_move_objects(const int rows, const int cols,
+                      const char grid[rows][cols], const int row,
+                      const int col) {
+    return grid[row][col] != WALL && grid[row][col] != END &&
+           grid[row][col] != BLUE_PORTAL && grid[row][col] != ORANGE_PORTAL &&
+           grid[row][col] != LEVER_ON && grid[row][col] != LEVER_OFF &&
+           grid[row][col] != HOLD_BUTTON;
+}
+
