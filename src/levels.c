@@ -43,7 +43,7 @@ InitPosition init_level_001(const int rows, const int cols,
         grid[0][i] = WALL;
         grid[rows - 1][i] = WALL;
     }
-    grid[rows - 2][cols - 2] = END;
+    grid[rows - 10][cols - 10] = END;
     grid[rows / 4][cols / 2] = F_REFLECTOR;
     grid[3 * (rows / 4)][cols / 2] = B_REFLECTOR;
     InitPosition init_pos;
@@ -52,7 +52,8 @@ InitPosition init_level_001(const int rows, const int cols,
     return init_pos;
 }
 
-InitPosition init_level_002(const int rows, const int cols, char grid[rows][cols]) {
+InitPosition init_level_002(const int rows, const int cols,
+                            char grid[rows][cols]) {
     // add walls
     for (int i = 0; i < rows; i++) {
         grid[i][0] = WALL;

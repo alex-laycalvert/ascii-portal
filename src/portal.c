@@ -251,9 +251,9 @@ void move_up(const int rows, const int cols, char grid[rows][cols]) {
         }
         int empty_row = player_row;
         while (grid[empty_row - 1][player_col] != EMPTY && empty_row > 0) {
-            // TODO
-            // something along the lines of
-            // if (grid[empty_row][player_col] == IMMOVABLE) return;
+            if (grid[empty_row - 1][player_col] == END ||
+                grid[empty_row - 1][player_col] == WALL)
+                return;
             empty_row--;
         }
         empty_row--;
@@ -280,8 +280,14 @@ void move_down(const int rows, const int cols, char grid[rows][cols]) {
             return;
         }
         int empty_row = player_row;
-        while (grid[empty_row + 1][player_col] != EMPTY && empty_row < rows - 1)
+        while (grid[empty_row + 1][player_col] != EMPTY &&
+               empty_row < rows - 1) {
+
+            if (grid[empty_row + 1][player_col] == END ||
+                grid[empty_row + 1][player_col] == WALL)
+                return;
             empty_row++;
+        }
         empty_row++;
         if (empty_row >= rows - 1) return;
         for (int i = empty_row; i > player_row + 1; i--)
@@ -306,8 +312,12 @@ void move_left(const int rows, const int cols, char grid[rows][cols]) {
             return;
         }
         int empty_col = player_col;
-        while (grid[player_row][empty_col - 1] != EMPTY && empty_col - 1 > 0)
+        while (grid[player_row][empty_col - 1] != EMPTY && empty_col - 1 > 0) {
+            if (grid[player_row][empty_col - 1] == END ||
+                grid[player_row][empty_col - 1] == WALL)
+                return;
             empty_col--;
+        }
         empty_col--;
         if (empty_col <= 0) return;
         for (int i = empty_col; i < player_col - 1; i++)
@@ -333,8 +343,12 @@ void move_right(const int rows, const int cols, char grid[rows][cols]) {
         }
         int empty_col = player_col;
         while (grid[player_row][empty_col + 1] != EMPTY &&
-               empty_col + 1 < cols - 1)
+               empty_col + 1 < cols - 1) {
+            if (grid[player_row][empty_col + 1] == END ||
+                grid[player_row][empty_col + 1] == WALL)
+                return;
             empty_col++;
+        }
         empty_col++;
         if (empty_col >= cols - 1) return;
         for (int i = empty_col; i > player_col + 1; i--)
