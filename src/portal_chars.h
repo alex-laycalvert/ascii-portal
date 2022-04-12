@@ -14,6 +14,8 @@
 #define LEVER_OFF 'l'
 #define KEY 'K'
 #define END 'E'
+#define F_REFLECTOR '/'
+#define B_REFLECTOR '\\'
 
 #define QUIT_KEY 'q'
 
