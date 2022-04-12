@@ -1,3 +1,4 @@
+#include "levels.h"
 #include "menu.h"
 #include "portal.h"
 #include "portal_chars.h"
@@ -51,26 +52,13 @@ void run() {
     // getting terminal size info
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    char grid[rows][cols];
 
     int menu_choice = display_menu(rows, cols);
-    switch (menu_choice) {
-        case MENU_CHOICE_PLAY:
-            break;
-        case MENU_CHOICE_SETTINGS:
-            // TODO
-            break;
-        case MENU_CHOICE_HELP:
-            // TODO
-            break;
-        case MENU_CHOICE_EXIT:
-            exit_game(EXIT_SUCCESS);
-            break;
-    }
+    if (menu_choice == MENU_CHOICE_EXIT) exit_game(EXIT_SUCCESS);
 
-    int level = 1; // TODO let player choose level
-    init_level(level, rows, cols, grid);
-    play(rows, cols, grid);
+    Node *grid = init_level_000(rows, cols);
+    play();
+    free(grid);
 }
 
 void exit_game(int code) {

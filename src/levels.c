@@ -1,5 +1,7 @@
 #include "levels.h"
 #include "portal_chars.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
  * Level 000: Lonely
@@ -8,66 +10,30 @@
  *
  * Strategy: Die alone.
  */
-InitPosition init_level_000(const int rows, const int cols,
-                            char grid[rows][cols]) {
-    // add walls
+Node *init_level_000(const int rows, const int cols) {
+    Node *nodes;
+    nodes = (Node *)malloc(rows * cols * sizeof(Node));
+    if (nodes == NULL) {
+        fprintf(stderr, "Error: allocating memory\n");
+        exit(1);
+    }
     for (int i = 0; i < rows; i++) {
-        grid[i][0] = WALL;
-        grid[i][cols - 1] = WALL;
+        for (int j = 0; j < cols; j++) {
+            Node tmp_node;
+            tmp_node.row = i;
+            tmp_node.col = j;
+            if (i == 0 || j == 0 || i == rows - 1 || j == cols - 1) {
+                tmp_node.type = WALL;
+            } else if (i == rows / 2 && j == cols / 2) {
+                tmp_node.type = PLAYER;
+                tmp_node.ch = PLAYER_C;
+            } else {
+                tmp_node.type = EMPTY;
+                tmp_node.ch = EMPTY_C;
+            }
+            nodes[i + (j % cols)] = tmp_node;
+        }
     }
-    for (int i = 0; i < cols; i++) {
-        grid[0][i] = WALL;
-        grid[rows - 1][i] = WALL;
-    }
-    InitPosition init_pos;
-    init_pos.row = rows / 2;
-    init_pos.col = cols / 2;
-    return init_pos;
+    return nodes;
 }
 
-/*
- * Level 001: Basic
- *
- * Objective: Reach the end point.
- *
- * Strategy: It's in the bottom right corner
- */
-InitPosition init_level_001(const int rows, const int cols,
-                            char grid[rows][cols]) {
-    // add walls
-    for (int i = 0; i < rows; i++) {
-        grid[i][0] = WALL;
-        grid[i][cols - 1] = WALL;
-    }
-    for (int i = 0; i < cols; i++) {
-        grid[0][i] = WALL;
-        grid[rows - 1][i] = WALL;
-    }
-    grid[rows - 10][cols - 10] = END;
-    grid[rows / 4][cols / 2] = F_REFLECTOR;
-    grid[3 * (rows / 4)][cols / 2] = B_REFLECTOR;
-    grid[3][3] = BLOCK;
-    grid[10][10] = LEVER_OFF;
-    InitPosition init_pos;
-    init_pos.row = rows / 2;
-    init_pos.col = cols / 2;
-    return init_pos;
-}
-
-InitPosition init_level_002(const int rows, const int cols,
-                            char grid[rows][cols]) {
-    // add walls
-    for (int i = 0; i < rows; i++) {
-        grid[i][0] = WALL;
-        grid[i][cols - 1] = WALL;
-    }
-    for (int i = 0; i < cols; i++) {
-        grid[0][i] = WALL;
-        grid[rows - 1][i] = WALL;
-    }
-    InitPosition init_pos;
-    init_pos.row = 2;
-    init_pos.col = 2;
-    grid[rows - 2][cols - 2] = END;
-    return init_pos;
-}

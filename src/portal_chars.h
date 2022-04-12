@@ -1,21 +1,21 @@
 #ifndef PORTAL_CHARS_H_
 #define PORTAL_CHARS_H_
 
-#define WALL 'I'
-#define PLAYER 'X'
-#define EMPTY ' '
+#define WALL_C 'I'
+#define PLAYER_C 'X'
+#define EMPTY_C ' '
 
-#define BLUE_PORTAL 'B'
-#define ORANGE_PORTAL 'R'
-#define PORTAL 'O'
-#define HOLD_BUTTON 'H'
-#define BLOCK 'C'
-#define LEVER_ON 'L'
-#define LEVER_OFF 'l'
-#define KEY 'K'
-#define END 'E'
-#define F_REFLECTOR '/'
-#define B_REFLECTOR '\\'
+#define BLUE_PORTAL_C 'B'
+#define ORANGE_PORTAL_C 'R'
+#define PORTAL_C 'O'
+#define HOLD_BUTTON_C 'H'
+#define BLOCK_C 'C'
+#define LEVER_ON_C 'L'
+#define LEVER_OFF_C 'l'
+#define KEY_C 'K'
+#define END_C 'E'
+#define F_REFLECTOR_C '/'
+#define B_REFLECTOR_C '\\'
 
 #define QUIT_KEY 'q'
 
