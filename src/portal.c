@@ -16,6 +16,7 @@ int oportal_row, oportal_col;
 bool bportal_set, oportal_set;
 bool reached_end;
 Direction looking;
+Direction shooting;
 CurrentPortal curr_portal;
 
 void init_level(const int level, const int rows, const int cols,
@@ -90,21 +91,20 @@ void print_grid(const int rows, const int cols, const char grid[rows][cols]) {
 }
 
 void clean_grid(const int rows, const int cols, char grid[rows][cols]) {
-    grid[player_row][player_col] = EMPTY;
     if (look_row <= 0 || look_col <= 0) return;
-    if (looking == UP) {
-        for (int i = look_row; i < player_row; i++) grid[i][look_col] = EMPTY;
-    } else if (looking == DOWN) {
-        for (int i = look_row; i > player_row; i--) grid[i][look_col] = EMPTY;
-    } else if (looking == LEFT) {
-        for (int i = look_col; i < player_col; i++) grid[look_row][i] = EMPTY;
-    } else if (looking == RIGHT) {
-        for (int i = look_col; i > player_col; i--) grid[look_row][i] = EMPTY;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (grid[i][j] == PLAYER || grid[i][j] == '-' ||
+                grid[i][j] == '|' || grid[i][j] == LOOK_UP ||
+                grid[i][j] == LOOK_DOWN || grid[i][j] == LOOK_LEFT ||
+                grid[i][j] == LOOK_RIGHT)
+                grid[i][j] = EMPTY;
+        }
     }
 }
 
 void recheck_aim(const int rows, const int cols, char grid[rows][cols]) {
-    switch (looking) {
+    switch (shooting) {
         case UP:
             if (grid[look_row - 1][look_col] == EMPTY) look_row--;
             break;
@@ -145,64 +145,92 @@ void update_grid(const int rows, const int cols, char grid[rows][cols]) {
     if (bportal_set) grid[bportal_row][bportal_col] = BLUE_PORTAL;
     if (oportal_set) grid[oportal_row][oportal_col] = ORANGE_PORTAL;
     grid[player_row][player_col] = PLAYER;
-    int tmp_row = player_row;
-    int tmp_col = player_col;
-    switch (looking) {
-        case UP:
-            tmp_row--;
-            if (grid[tmp_row][tmp_col] != EMPTY) {
-                tmp_row = -1;
-                tmp_col = -1;
+    look_row = player_row;
+    look_col = player_col;
+    bool done = false;
+    shooting = looking;
+    while (!done) {
+        switch (shooting) {
+            case UP:
+                if (grid[look_row - 1][look_col] == EMPTY) {
+                    look_row--;
+                    grid[look_row][look_col] = '|';
+                } else if (grid[look_row - 1][look_col] == F_REFLECTOR) {
+                    shooting = RIGHT;
+                    look_row--;
+
+                } else if (grid[look_row - 1][look_col] == B_REFLECTOR) {
+                    shooting = LEFT;
+                    look_row--;
+                } else {
+                    done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_UP;
+                }
                 break;
-            }
-            while (grid[tmp_row - 1][tmp_col] == EMPTY) {
-                grid[tmp_row][tmp_col] = '|';
-                tmp_row--;
-            }
-            grid[tmp_row][tmp_col] = LOOK_UP;
-            break;
-        case DOWN:
-            tmp_row++;
-            if (grid[tmp_row][tmp_col] != EMPTY) {
-                tmp_row = -1;
-                tmp_col = -1;
+            case DOWN:
+                if (grid[look_row + 1][look_col] == EMPTY) {
+                    look_row++;
+                    grid[look_row][look_col] = '|';
+                } else if (grid[look_row + 1][look_col] == F_REFLECTOR) {
+                    shooting = LEFT;
+                    look_row++;
+
+                } else if (grid[look_row + 1][look_col] == B_REFLECTOR) {
+                    shooting = RIGHT;
+                    look_row++;
+                } else {
+                    done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_DOWN;
+                }
                 break;
-            }
-            while (grid[tmp_row + 1][tmp_col] == EMPTY) {
-                grid[tmp_row][tmp_col] = '|';
-                tmp_row++;
-            }
-            grid[tmp_row][tmp_col] = LOOK_DOWN;
-            break;
-        case LEFT:
-            tmp_col--;
-            if (grid[tmp_row][tmp_col] != EMPTY) {
-                tmp_row = -1;
-                tmp_col = -1;
+            case LEFT:
+                if (grid[look_row][look_col - 1] == EMPTY) {
+                    look_col--;
+                    grid[look_row][look_col] = '-';
+                } else if (grid[look_row][look_col - 1] == F_REFLECTOR) {
+                    shooting = DOWN;
+                    look_col--;
+                } else if (grid[look_row][look_col - 1] == B_REFLECTOR) {
+                    shooting = UP;
+                    look_col--;
+                } else {
+                    done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_LEFT;
+                }
                 break;
-            }
-            while (grid[tmp_row][tmp_col - 1] == EMPTY) {
-                grid[tmp_row][tmp_col] = '-';
-                tmp_col--;
-            }
-            grid[tmp_row][tmp_col] = LOOK_LEFT;
-            break;
-        case RIGHT:
-            tmp_col++;
-            if (grid[tmp_row][tmp_col] != EMPTY) {
-                tmp_row = -1;
-                tmp_col = -1;
+            case RIGHT:
+                if (grid[look_row][look_col + 1] == EMPTY) {
+                    look_col++;
+                    grid[look_row][look_col] = '-';
+                } else if (grid[look_row][look_col + 1] == F_REFLECTOR) {
+                    shooting = UP;
+                    look_col++;
+                } else if (grid[look_row][look_col + 1] == B_REFLECTOR) {
+                    shooting = DOWN;
+                    look_col++;
+                } else {
+                    done = true;
+                    if (look_row == player_row && look_col == player_col) break;
+                    if (grid[look_row][look_col] == F_REFLECTOR ||
+                        grid[look_row][look_col] == B_REFLECTOR)
+                        break;
+                    grid[look_row][look_col] = LOOK_RIGHT;
+                }
                 break;
-            }
-            while (grid[tmp_row][tmp_col + 1] == EMPTY) {
-                grid[tmp_row][tmp_col] = '-';
-                tmp_col++;
-            }
-            grid[tmp_row][tmp_col] = LOOK_RIGHT;
-            break;
+        }
     }
-    look_row = tmp_row;
-    look_col = tmp_col;
 }
 
 void move_up(const int rows, const int cols, const char grid[rows][cols]) {
@@ -269,6 +297,7 @@ void play(const int rows, const int cols, char grid[rows][cols]) {
     player_row = init_pos.row;
     player_col = init_pos.col;
     looking = UP;
+    shooting = UP;
     look_row = -1;
     look_col = -1;
     bportal_set = false;
