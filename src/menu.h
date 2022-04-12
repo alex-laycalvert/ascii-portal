@@ -4,9 +4,6 @@
 #include <ncurses.h>
 #include <string.h>
 
-#define MENU_SELECTED_COLOR_PAIR 6
-#define MENU_BORDER_COLOR_PAIR 7
-
 #define MENU_BORDER 'I'
 #define MENU_UP (char)KEY_UP
 #define MENU_DOWN (char)KEY_DOWN

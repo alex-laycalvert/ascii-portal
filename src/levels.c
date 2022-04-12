@@ -1,4 +1,5 @@
 #include "levels.h"
+#include "portal_chars.h"
 
 /*
  * Level 000: Lonely
@@ -18,48 +19,3 @@ void init_level_000(const int rows, const int cols, char grid[rows][cols]) {
         grid[rows - 1][i] = WALL;
     }
 }
-
-/*
- * Level 001: TODO
- *
- * Objective: TODO
- *
- * Strategy: TODO
- */
-void init_level_001(const int rows, const int cols, char grid[rows][cols]) {}
-
-/*
- * Level 002: TODO
- *
- * Objective: TODO
- *
- * Strategy: TODO
- */
-void init_level_002(const int rows, const int cols, char grid[rows][cols]) {}
-
-/*
- * Level 003: TODO
- *
- * Objective: TODO
- *
- * Strategy: TODO
- */
-void init_level_003(const int rows, const int cols, char grid[rows][cols]) {}
-
-/*
- * Level 004: TODO
- *
- * Objective: TODO
- *
- * Strategy: TODO
- */
-void init_level_004(const int rows, const int cols, char grid[rows][cols]) {}
-
-/*
- * Level 005: TODO
- *
- * Objective: TODO
- *
- * Strategy: TODO
- */
-void init_level_005(const int rows, const int cols, char grid[rows][cols]) {}
