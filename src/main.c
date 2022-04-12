@@ -32,6 +32,8 @@ void setup() {
     // initializing some colors
     start_color();
     use_default_colors();
+    init_pair(MENU_SELECTED_COLOR_PAIR, COLOR_BLACK, COLOR_WHITE);
+    init_pair(MENU_BORDER_COLOR_PAIR, COLOR_WHITE, COLOR_WHITE);
     init_pair(EMPTY_COLOR_PAIR, COLOR_WHITE, COLOR_WHITE);
     init_pair(WALL_COLOR_PAIR, COLOR_WHITE, COLOR_WHITE);
     init_pair(PLAYER_COLOR_PAIR, COLOR_GREEN, COLOR_GREEN);
@@ -42,8 +44,7 @@ void setup() {
     init_pair(LEVER_ON_COLOR_PAIR, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(LEVER_OFF_COLOR_PAIR, COLOR_RED, COLOR_BLACK);
     init_pair(KEY_COLOR_PAIR, COLOR_YELLOW, COLOR_YELLOW);
-    init_pair(MENU_SELECTED_COLOR_PAIR, COLOR_BLACK, COLOR_WHITE);
-    init_pair(MENU_BORDER_COLOR_PAIR, COLOR_WHITE, COLOR_WHITE);
+    init_pair(END_COLOR_PAIR, COLOR_YELLOW, COLOR_BLACK);
 }
 
 void run() {
@@ -67,7 +68,7 @@ void run() {
             break;
     }
 
-    int level = 0; // TODO let player choose level
+    int level = 1; // TODO let player choose level
     init_level(level, rows, cols, grid);
     play(rows, cols, grid);
 }

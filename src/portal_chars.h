@@ -13,6 +13,7 @@
 #define LEVER_ON 'L'
 #define LEVER_OFF 'l'
 #define KEY 'K'
+#define END 'E'
 
 #define QUIT_KEY 'q'
 
@@ -35,6 +36,7 @@
 #define LEVER_ON_COLOR_PAIR 10
 #define LEVER_OFF_COLOR_PAIR 11
 #define KEY_COLOR_PAIR 12
+#define END_COLOR_PAIR 13
 
 #define LOOK_UP '^'
 #define LOOK_DOWN 'v'
