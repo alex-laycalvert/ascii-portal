@@ -7,9 +7,12 @@
 
 Node **map;
 Node *player, *bportal, *oportal, *looking_at;
+int num_special_items;
+Node **special_items;
 Direction looking, shooting;
 CurrentPortal curr_portal;
 int rows, cols;
+bool completed;
 
 void init_map(const int t_rows, const int t_cols) {
     rows = t_rows;
@@ -27,19 +30,55 @@ void init_map(const int t_rows, const int t_cols) {
         }
     }
     init_level_000(rows, cols, map);
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            if (map[i][j].type == PLAYER) player = &map[i][j];
+    num_special_items = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            switch (map[i][j].type) {
+                case PLAYER:
+                    player = &map[i][j];
+                    break;
+                case HOLD_BUTTON:
+                    num_special_items++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
     bportal = NULL;
     oportal = NULL;
     looking_at = NULL;
     curr_portal = BLUE;
     looking = UP;
     shooting = UP;
+    completed = false;
+    if (num_special_items == 0) return;
+    special_items = (Node **)malloc(num_special_items * sizeof(Node *));
+    if (special_items == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory\n");
+        exit(1);
+    }
+    int in = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            switch (map[i][j].type) {
+                case HOLD_BUTTON:
+                    special_items[in] = &map[i][j];
+                    in++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void destroy_map() {
-    for (int i = 0; i < rows; i++) free(map[i]);
+    if (special_items != NULL) free(special_items);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) free((&map[i][j])->linked_nodes);
+        free(map[i]);
+    }
     free(map);
 }
 
@@ -73,6 +112,24 @@ void print_map() {
                     attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
                     break;
                 case END:
+                    attron(COLOR_PAIR(END_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(END_COLOR_PAIR));
+                    break;
+                case BLOCK:
+                    attron(COLOR_PAIR(BLOCK_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(BLOCK_COLOR_PAIR));
+                    break;
+                case TOGGLE_BLOCK:
+                    attron(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
+                    break;
+                case HOLD_BUTTON:
+                    attron(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
                     break;
                 default:
                     mvprintw(i, j, "%c", map[i][j].ch);
@@ -188,9 +245,45 @@ void update() {
                 break;
         }
     }
+    for (int i = 0; i < num_special_items; i++) {
+        Node *special_item = special_items[i];
+        bool holding = false;
+        switch (special_item->type) {
+            case HOLD_BUTTON:
+                if (special_item->num_linked_nodes == 0) break;
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        int r = special_item->row + i - 1;
+                        int c = special_item->col + j - 1;
+                        if ((i + (j % 3)) % 2 == 0) continue;
+                        if (r <= 0 || r >= rows - 1) break;
+                        if (c <= 0 || c >= cols - 1) continue;
+                        if (map[r][c].type == PLAYER ||
+                            map[r][c].type == BLOCK) {
+                            holding = true;
+                            break;
+                        }
+                    }
+                    if (holding) break;
+                }
+                for (int i = 0; i < special_item->num_linked_nodes; i++) {
+                    Node *linked = special_item->linked_nodes[i];
+                    if (holding) {
+                        linked->type = EMPTY;
+                        linked->ch = EMPTY_C;
+                    } else {
+                        linked->type = TOGGLE_BLOCK;
+                        linked->ch = TOGGLE_BLOCK_C;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
 
-void play() {
+bool play() {
     bool keep_playing = true;
     do {
         update();
@@ -234,7 +327,9 @@ void play() {
                     keep_playing = false;
                 break;
         }
+        if (completed) keep_playing = false;
     } while (keep_playing);
+    return completed;
 }
 
 void move_player(Direction dir) {
@@ -244,38 +339,65 @@ void move_player(Direction dir) {
     if (dir == DOWN) row_offset = 1;
     if (dir == LEFT) col_offset = -1;
     if (dir == RIGHT) col_offset = 1;
-    if (map[player->row + row_offset][player->col + col_offset].type ==
-        BLUE_PORTAL) {
-        if (oportal == NULL) return;
-        player->type = EMPTY;
-        player->ch = EMPTY_C;
-        player = oportal;
-        return;
+    Node *tmp;
+    switch (map[player->row + row_offset][player->col + col_offset].type) {
+        case EMPTY:
+            tmp = &map[player->row + row_offset][player->col + col_offset];
+            tmp->type = PLAYER;
+            tmp->ch = PLAYER_C;
+            if (player == bportal) {
+                player->type = BLUE_PORTAL;
+                player->ch = PORTAL_C;
+            } else if (player == oportal) {
+                player->type = ORANGE_PORTAL;
+                player->ch = PORTAL_C;
+            } else {
+                player->type = EMPTY;
+                player->ch = EMPTY_C;
+            }
+            player = tmp;
+            return;
+        case END:
+            completed = true;
+            return;
+        case BLUE_PORTAL:
+            if (oportal == NULL) return;
+            player->type = EMPTY;
+            player->ch = EMPTY_C;
+            player = oportal;
+            return;
+        case ORANGE_PORTAL:
+            if (bportal == NULL) return;
+            player->type = EMPTY;
+            player->ch = EMPTY_C;
+            player = bportal;
+            return;
+        case BLOCK:
+            if (map[player->row + 2 * row_offset][player->col + 2 * col_offset]
+                    .type != EMPTY)
+                return;
+            (&map[player->row + 2 * row_offset][player->col + 2 * col_offset])
+                ->type = BLOCK;
+            (&map[player->row + 2 * row_offset][player->col + 2 * col_offset])
+                ->ch = BLOCK_C;
+            tmp = &map[player->row + row_offset][player->col + col_offset];
+            tmp->type = PLAYER;
+            tmp->ch = PLAYER_C;
+            if (player == bportal) {
+                player->type = BLUE_PORTAL;
+                player->ch = PORTAL_C;
+            } else if (player == oportal) {
+                player->type = ORANGE_PORTAL;
+                player->ch = PORTAL_C;
+            } else {
+                player->type = EMPTY;
+                player->ch = EMPTY_C;
+            }
+            player = tmp;
+            return;
+        default:
+            return;
     }
-    if (map[player->row + row_offset][player->col + col_offset].type ==
-        ORANGE_PORTAL) {
-        if (bportal == NULL) return;
-        player->type = EMPTY;
-        player->ch = EMPTY_C;
-        player = bportal;
-        return;
-    }
-    if (map[player->row + row_offset][player->col + col_offset].type != EMPTY)
-        return;
-    Node *tmp = &map[player->row + row_offset][player->col + col_offset];
-    tmp->type = PLAYER;
-    tmp->ch = PLAYER_C;
-    if (player == bportal) {
-        player->type = BLUE_PORTAL;
-        player->ch = PORTAL_C;
-    } else if (player == oportal) {
-        player->type = ORANGE_PORTAL;
-        player->ch = PORTAL_C;
-    } else {
-        player->type = EMPTY;
-        player->ch = EMPTY_C;
-    }
-    player = tmp;
 }
 
 void shoot_portal() {
