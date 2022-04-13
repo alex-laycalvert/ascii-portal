@@ -3,6 +3,6 @@
 
 #include "portal.h"
 
-Node *init_level_000(const int rows, const int cols);
+void init_level_000(const int rows, const int cols, Node **map);
 
 #endif // LEVELS_H_

@@ -1,7 +1,7 @@
 #include "levels.h"
 #include "menu.h"
 #include "portal.h"
-#include "portal_chars.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 void setup();
@@ -56,9 +56,9 @@ void run() {
     int menu_choice = display_menu(rows, cols);
     if (menu_choice == MENU_CHOICE_EXIT) exit_game(EXIT_SUCCESS);
 
-    Node *grid = init_level_000(rows, cols);
+    init_map(rows, cols);
     play();
-    free(grid);
+    destroy_map();
 }
 
 void exit_game(int code) {
