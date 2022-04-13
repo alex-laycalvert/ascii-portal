@@ -1,5 +1,5 @@
 #include "menu.h"
-#include "portal_chars.h"
+#include "portal.h"
 
 void print_game_title(const int ctr_row, const int ctr_col) {
     char *title[7];
