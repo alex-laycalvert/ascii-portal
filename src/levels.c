@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 /*
- * Level 000: Lonely
+ * Level 000: Lonely (Testing Purposes)
  *
  * Objective: Nothing. There is nothing to do but shoot portals at walls.
  *
@@ -19,12 +19,6 @@ void init_level_000(const int rows, const int cols, Node **map) {
             if (i == 0 || j == 0 || i == rows - 1 || j == cols - 1) {
                 node.type = WALL;
                 node.ch = WALL_C;
-            } else if (i == rows / 2 && j == cols / 2) {
-                node.type = PLAYER;
-                node.ch = PLAYER_C;
-            } else if (i == rows / 4 && j == cols / 2) {
-                node.type = F_REFLECTOR;
-                node.ch = F_REFLECTOR_C;
             } else {
                 node.type = EMPTY;
                 node.ch = EMPTY_C;
@@ -32,5 +26,12 @@ void init_level_000(const int rows, const int cols, Node **map) {
             map[i][j] = node;
         }
     }
+    // set player
+    (&map[rows / 2][cols / 2])->type = PLAYER;
+    (&map[rows / 2][cols / 2])->ch = PLAYER_C;
+
+    // set reflector
+    (&map[rows / 4][cols / 2])->type = F_REFLECTOR;
+    (&map[rows / 4][cols / 2])->ch = F_REFLECTOR_C;
 }
 
