@@ -79,6 +79,11 @@ void print_map() {
                     mvprintw(i, j, "%c", map[i][j].ch);
                     attroff(COLOR_PAIR(END_COLOR_PAIR));
                     break;
+                case BLOCK:
+                    attron(COLOR_PAIR(BLOCK_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(BLOCK_COLOR_PAIR));
+                    break;
                 default:
                     mvprintw(i, j, "%c", map[i][j].ch);
                     break;
@@ -283,6 +288,29 @@ void move_player(Direction dir) {
             player->type = EMPTY;
             player->ch = EMPTY_C;
             player = bportal;
+            return;
+        case BLOCK:
+            if (map[player->row + 2 * row_offset][player->col + 2 * col_offset]
+                    .type != EMPTY)
+                return;
+            (&map[player->row + 2 * row_offset][player->col + 2 * col_offset])
+                ->type = BLOCK;
+            (&map[player->row + 2 * row_offset][player->col + 2 * col_offset])
+                ->ch = BLOCK_C;
+            tmp = &map[player->row + row_offset][player->col + col_offset];
+            tmp->type = PLAYER;
+            tmp->ch = PLAYER_C;
+            if (player == bportal) {
+                player->type = BLUE_PORTAL;
+                player->ch = PORTAL_C;
+            } else if (player == oportal) {
+                player->type = ORANGE_PORTAL;
+                player->ch = PORTAL_C;
+            } else {
+                player->type = EMPTY;
+                player->ch = EMPTY_C;
+            }
+            player = tmp;
             return;
         default:
             return;
