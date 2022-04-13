@@ -58,15 +58,14 @@ void run() {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
 
-
     int menu_choice = display_menu(rows, cols);
     if (menu_choice == MENU_CHOICE_EXIT) exit_game(EXIT_SUCCESS);
-
     init_map(rows, cols);
-    if (play()) {
-        // TODO
-        // display winning screen
-    }
+    int level = 1;
+    do {
+        init_level(level);
+        level++;
+    } while (play());
     destroy_map();
 }
 

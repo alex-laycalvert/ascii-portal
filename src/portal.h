@@ -83,6 +83,8 @@ typedef enum direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum current_portal { BLUE, ORANGE } CurrentPortal;
 
 void init_map(const int rows, const int cols);
+void init_level(const int level);
+void clean_map();
 void destroy_map();
 void print_map();
 void update();

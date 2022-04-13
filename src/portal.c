@@ -29,7 +29,15 @@ void init_map(const int t_rows, const int t_cols) {
             exit(1);
         }
     }
-    init_level_000(rows, cols, map);
+}
+
+void init_level(const int level) {
+    if (level == 0)
+        init_level_000(rows, cols, map);
+    else if (level == 1)
+        init_level_001(rows, cols, map);
+    else
+        init_level_001(rows, cols, map);
     num_special_items = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -72,6 +80,8 @@ void init_map(const int t_rows, const int t_cols) {
         }
     }
 }
+
+void clean_map() {}
 
 void destroy_map() {
     if (special_items != NULL) free(special_items);
