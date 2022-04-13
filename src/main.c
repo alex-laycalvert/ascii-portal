@@ -57,7 +57,10 @@ void run() {
     if (menu_choice == MENU_CHOICE_EXIT) exit_game(EXIT_SUCCESS);
 
     init_map(rows, cols);
-    play();
+    if (play()) {
+        // TODO
+        // display winning screen
+    }
     destroy_map();
 }
 

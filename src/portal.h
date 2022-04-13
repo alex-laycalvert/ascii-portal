@@ -1,6 +1,8 @@
 #ifndef PORTAL_H_
 #define PORTAL_H_
 
+#include <stdbool.h>
+
 #define WALL_C 'I'
 #define PLAYER_C 'X'
 #define EMPTY_C ' '
@@ -75,7 +77,7 @@ void init_map(const int rows, const int cols);
 void destroy_map();
 void print_map();
 void update();
-void play();
+bool play();
 void move_player(Direction dir);
 void shoot_portal();
 

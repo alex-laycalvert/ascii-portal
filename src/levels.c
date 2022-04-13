@@ -35,5 +35,9 @@ void init_level_000(const int rows, const int cols, Node **map) {
     (&map[rows / 4][cols / 2])->ch = F_REFLECTOR_C;
     (&map[rows / 4][3 * (cols / 4)])->type = B_REFLECTOR;
     (&map[rows / 4][3 * (cols / 4)])->ch = B_REFLECTOR_C;
+
+    // set end
+    (&map[rows - 5][cols - 5])->type = END;
+    (&map[rows - 5][cols - 5])->ch = END_C;
 }
 
