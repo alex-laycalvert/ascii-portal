@@ -41,7 +41,10 @@ void init_map(const int t_rows, const int t_cols) {
 }
 
 void destroy_map() {
-    for (int i = 0; i < rows; i++) free(map[i]);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) free((&map[i][j])->linked_nodes);
+        free(map[i]);
+    }
     free(map);
 }
 
@@ -83,6 +86,16 @@ void print_map() {
                     attron(COLOR_PAIR(BLOCK_COLOR_PAIR));
                     mvprintw(i, j, "%c", map[i][j].ch);
                     attroff(COLOR_PAIR(BLOCK_COLOR_PAIR));
+                    break;
+                case TOGGLE_BLOCK:
+                    attron(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
+                    break;
+                case HOLD_BUTTON:
+                    attron(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
+                    mvprintw(i, j, "%c", map[i][j].ch);
+                    attroff(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
                     break;
                 default:
                     mvprintw(i, j, "%c", map[i][j].ch);
@@ -196,6 +209,29 @@ void update() {
                     looking_at->ch = LOOK_RIGHT;
                 }
                 break;
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int r = player->row + i - 1;
+            int c = player->col + j - 1;
+            if (r <= 0 || r + i - 1 >= rows - 1) break;
+            if (c + j - 1 <= 0 || c + j - 1 >= cols - 1) continue;
+            if ((i + (j % 3)) % 2 == 0) continue;
+            if (map[r][c].type == HOLD_BUTTON) {
+                if (map[r][c].num_linked_nodes == 0) return;
+                Node *hold_button = &map[r][c];
+                for (int i = 0; i < hold_button->num_linked_nodes; i++) {
+                    Node *n = hold_button->linked_nodes[i];
+                    if (n->type == TOGGLE_BLOCK) {
+                        n->type = EMPTY;
+                        n->ch = EMPTY_C;
+                    } else {
+                        n->type = TOGGLE_BLOCK;
+                        n->ch = TOGGLE_BLOCK_C;
+                    }
+                }
+            }
         }
     }
 }
