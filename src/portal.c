@@ -247,8 +247,10 @@ void update() {
     }
     for (int i = 0; i < num_special_items; i++) {
         Node *special_item = special_items[i];
+        bool holding = false;
         switch (special_item->type) {
             case HOLD_BUTTON:
+                if (special_item->num_linked_nodes == 0) break;
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
                         int r = special_item->row + i - 1;
@@ -258,21 +260,20 @@ void update() {
                         if (c <= 0 || c >= cols - 1) continue;
                         if (map[r][c].type == PLAYER ||
                             map[r][c].type == BLOCK) {
-                            if (special_item->num_linked_nodes == 0) break;
-                            for (int i = 0; i < special_item->num_linked_nodes;
-                                 i++) {
-                                if (special_item->linked_nodes[i]->type ==
-                                    EMPTY) {
-                                    special_item->linked_nodes[i]->type =
-                                        TOGGLE_BLOCK;
-                                    special_item->linked_nodes[i]->ch =
-                                        TOGGLE_BLOCK_C;
-                                } else {
-                                    special_item->linked_nodes[i]->type = EMPTY;
-                                    special_item->linked_nodes[i]->ch = EMPTY_C;
-                                }
-                            }
+                            holding = true;
+                            break;
                         }
+                    }
+                    if (holding) break;
+                }
+                for (int i = 0; i < special_item->num_linked_nodes; i++) {
+                    Node *linked = special_item->linked_nodes[i];
+                    if (holding) {
+                        linked->type = EMPTY;
+                        linked->ch = EMPTY_C;
+                    } else {
+                        linked->type = TOGGLE_BLOCK;
+                        linked->ch = TOGGLE_BLOCK_C;
                     }
                 }
                 break;

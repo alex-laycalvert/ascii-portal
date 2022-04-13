@@ -26,7 +26,7 @@
 #define BLUE_PORTAL_C 'B'
 #define ORANGE_PORTAL_C 'R'
 #define PORTAL_C 'O'
-#define HOLD_BUTTON_C 'H' // TODO
+#define HOLD_BUTTON_C 'H'
 #define BLOCK_C 'C'
 #define LEVER_ON_C 'L'  // TODO
 #define LEVER_OFF_C 'l' // TODO

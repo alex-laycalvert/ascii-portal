@@ -42,26 +42,17 @@ void init_level_000(const int rows, const int cols, Node **map) {
     (&map[rows / 3][cols / 2])->type = BLOCK;
     (&map[rows / 3][cols / 2])->ch = BLOCK_C;
 
-    (&map[(rows / 2) - 4][cols / 5])->type = TOGGLE_BLOCK;
-    (&map[(rows / 2) - 4][cols / 5])->ch = TOGGLE_BLOCK_C;
-    (&map[(rows / 2) - 3][cols / 5])->type = TOGGLE_BLOCK;
-    (&map[(rows / 2) - 3][cols / 5])->ch = TOGGLE_BLOCK_C;
-    (&map[(rows / 2) - 2][cols / 5])->type = TOGGLE_BLOCK;
-    (&map[(rows / 2) - 2][cols / 5])->ch = TOGGLE_BLOCK_C;
-    (&map[(rows / 2) - 1][cols / 5])->type = TOGGLE_BLOCK;
-    (&map[(rows / 2) - 1][cols / 5])->ch = TOGGLE_BLOCK_C;
-    (&map[(rows / 2)][cols / 5])->type = TOGGLE_BLOCK;
-    (&map[(rows / 2)][cols / 5])->ch = TOGGLE_BLOCK_C;
-
-    // set hold button
-    Node *hold = &map[rows / 2][cols / 4];
+    Node *hold = &map[2][2];
     hold->type = HOLD_BUTTON;
     hold->ch = HOLD_BUTTON_C;
-    hold->num_linked_nodes = 5;
-
-    hold->linked_nodes = (Node **)malloc(5 * sizeof(Node *));
-    for (int i = 0; i < hold->num_linked_nodes; i++) {
-        hold->linked_nodes[i] = &map[(rows / 2) - i][cols / 5];
+    hold->num_linked_nodes = 10;
+    hold->linked_nodes =
+        (Node **)malloc(hold->num_linked_nodes * sizeof(Node *));
+    for (int i = 0; i < 10; i++) {
+        Node *toggle = &map[2][4 + i];
+        toggle->type = TOGGLE_BLOCK;
+        toggle->ch = TOGGLE_BLOCK_C;
+        hold->linked_nodes[i] = toggle;
     }
 
     // set end
