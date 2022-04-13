@@ -6,16 +6,15 @@
 #define WALL_C 'I'
 #define PLAYER_C 'X'
 #define EMPTY_C ' '
-
 #define BLUE_PORTAL_C 'B'
 #define ORANGE_PORTAL_C 'R'
 #define PORTAL_C 'O'
 #define HOLD_BUTTON_C 'H' // TODO
-#define BLOCK_C 'C'       // TODO
-#define LEVER_ON_C 'L'    // TODO
-#define LEVER_OFF_C 'l'   // TODO
-#define KEY_C 'K'         // TODO
-#define END_C 'E'         // TODO
+#define BLOCK_C 'C'
+#define LEVER_ON_C 'L'  // TODO
+#define LEVER_OFF_C 'l' // TODO
+#define KEY_C 'K'       // TODO
+#define END_C 'E'
 #define F_REFLECTOR_C '/'
 #define B_REFLECTOR_C '\\'
 
