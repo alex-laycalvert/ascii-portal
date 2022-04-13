@@ -7,6 +7,8 @@
 
 Node **map;
 Node *player, *bportal, *oportal, *looking_at;
+int num_special_items;
+Node **special_items;
 Direction looking, shooting;
 CurrentPortal curr_portal;
 int rows, cols;
@@ -28,9 +30,20 @@ void init_map(const int t_rows, const int t_cols) {
         }
     }
     init_level_000(rows, cols, map);
-    for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-            if (map[i][j].type == PLAYER) player = &map[i][j];
+    num_special_items = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            switch (map[i][j].type) {
+                case PLAYER:
+                    player = &map[i][j];
+                    break;
+                case HOLD_BUTTON:
+                    special_items++;
+                default:
+                    break;
+            }
+        }
+    }
     bportal = NULL;
     oportal = NULL;
     looking_at = NULL;
@@ -38,9 +51,29 @@ void init_map(const int t_rows, const int t_cols) {
     looking = UP;
     shooting = UP;
     completed = false;
+    if (special_items == 0) return;
+    special_items = (Node **)malloc(num_special_items * sizeof(Node *));
+    if (special_items == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory\n");
+        exit(1);
+    }
+    int in = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            switch (map[i][j].type) {
+                case HOLD_BUTTON:
+                    special_items[in] = &map[i][j];
+                    in++;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void destroy_map() {
+    free(special_items);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) free((&map[i][j])->linked_nodes);
         free(map[i]);
@@ -211,27 +244,39 @@ void update() {
                 break;
         }
     }
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            int r = player->row + i - 1;
-            int c = player->col + j - 1;
-            if (r <= 0 || r + i - 1 >= rows - 1) break;
-            if (c + j - 1 <= 0 || c + j - 1 >= cols - 1) continue;
-            if ((i + (j % 3)) % 2 == 0) continue;
-            if (map[r][c].type == HOLD_BUTTON) {
-                if (map[r][c].num_linked_nodes == 0) return;
-                Node *hold_button = &map[r][c];
-                for (int i = 0; i < hold_button->num_linked_nodes; i++) {
-                    Node *n = hold_button->linked_nodes[i];
-                    if (n->type == TOGGLE_BLOCK) {
-                        n->type = EMPTY;
-                        n->ch = EMPTY_C;
-                    } else {
-                        n->type = TOGGLE_BLOCK;
-                        n->ch = TOGGLE_BLOCK_C;
+    for (int i = 0; i < num_special_items; i++) {
+        Node *special_item = special_items[i];
+        switch (special_item->type) {
+            case HOLD_BUTTON:
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        int r = special_item->row + i - 1;
+                        int c = special_item->col + j - 1;
+                        if ((i + (j % 3)) % 2 == 0) continue;
+                        if (r <= 0 || r >= rows - 1) break;
+                        if (c <= 0 || c >= cols - 1) continue;
+                        if (map[r][c].type == PLAYER ||
+                            map[r][c].type == BLOCK) {
+                            if (special_item->num_linked_nodes == 0) break;
+                            for (int i = 0; i < special_item->num_linked_nodes;
+                                 i++) {
+                                if (special_item->linked_nodes[i]->type ==
+                                    EMPTY) {
+                                    special_item->linked_nodes[i]->type =
+                                        TOGGLE_BLOCK;
+                                    special_item->linked_nodes[i]->ch =
+                                        TOGGLE_BLOCK_C;
+                                } else {
+                                    special_item->linked_nodes[i]->type = EMPTY;
+                                    special_item->linked_nodes[i]->ch = EMPTY_C;
+                                }
+                            }
+                        }
                     }
                 }
-            }
+                break;
+            default:
+                break;
         }
     }
 }

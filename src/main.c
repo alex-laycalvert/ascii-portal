@@ -1,6 +1,7 @@
 #include "levels.h"
 #include "menu.h"
 #include "portal.h"
+#include <curses.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -53,8 +54,10 @@ void setup() {
 
 void run() {
     // getting terminal size info
+    resizeterm(41, 172);
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
+
 
     int menu_choice = display_menu(rows, cols);
     if (menu_choice == MENU_CHOICE_EXIT) exit_game(EXIT_SUCCESS);
