@@ -38,7 +38,8 @@ void init_map(const int t_rows, const int t_cols) {
                     player = &map[i][j];
                     break;
                 case HOLD_BUTTON:
-                    special_items++;
+                    num_special_items++;
+                    break;
                 default:
                     break;
             }
@@ -51,7 +52,7 @@ void init_map(const int t_rows, const int t_cols) {
     looking = UP;
     shooting = UP;
     completed = false;
-    if (special_items == 0) return;
+    if (num_special_items == 0) return;
     special_items = (Node **)malloc(num_special_items * sizeof(Node *));
     if (special_items == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory\n");
@@ -73,7 +74,7 @@ void init_map(const int t_rows, const int t_cols) {
 }
 
 void destroy_map() {
-    free(special_items);
+    if (special_items != NULL) free(special_items);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) free((&map[i][j])->linked_nodes);
         free(map[i]);
