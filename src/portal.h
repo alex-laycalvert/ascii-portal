@@ -2,20 +2,20 @@
 #define PORTAL_H_
 
 #define WALL_C 'I'
-#define PLAYER_C 'X' // TODO
+#define PLAYER_C 'X'
 #define EMPTY_C ' '
 
-#define BLUE_PORTAL_C 'B'   // TODO
-#define ORANGE_PORTAL_C 'R' // TODO
-#define PORTAL_C 'O'        // TODO
-#define HOLD_BUTTON_C 'H'   // TODO
-#define BLOCK_C 'C'         // TODO
-#define LEVER_ON_C 'L'      // TODO
-#define LEVER_OFF_C 'l'     // TODO
-#define KEY_C 'K'           // TODO
-#define END_C 'E'           // TODO
-#define F_REFLECTOR_C '/'   // TODO
-#define B_REFLECTOR_C '\\'  // TODO
+#define BLUE_PORTAL_C 'B'
+#define ORANGE_PORTAL_C 'R'
+#define PORTAL_C 'O'
+#define HOLD_BUTTON_C 'H' // TODO
+#define BLOCK_C 'C'       // TODO
+#define LEVER_ON_C 'L'    // TODO
+#define LEVER_OFF_C 'l'   // TODO
+#define KEY_C 'K'         // TODO
+#define END_C 'E'         // TODO
+#define F_REFLECTOR_C '/'
+#define B_REFLECTOR_C '\\'
 
 #define QUIT_KEY 'q'
 
@@ -77,6 +77,6 @@ void print_map();
 void update();
 void play();
 void move_player(Direction dir);
-void swap_nodes(Node *node1, Node *node2);
+void shoot_portal();
 
 #endif // PORTAL_H_

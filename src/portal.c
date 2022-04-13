@@ -63,14 +63,14 @@ void print_map() {
                     attroff(COLOR_PAIR(WALL_COLOR_PAIR));
                     break;
                 case BLUE_PORTAL:
-                    attron(COLOR_PAIR(BLUE_PORTAL));
+                    attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
                     mvprintw(i, j, "%c", map[i][j].ch);
-                    attroff(COLOR_PAIR(BLUE_PORTAL));
+                    attroff(COLOR_PAIR(BPORTAL_COLOR_PAIR));
                     break;
                 case ORANGE_PORTAL:
-                    attron(COLOR_PAIR(ORANGE_PORTAL));
+                    attron(COLOR_PAIR(OPORTAL_COLOR_PAIR));
                     mvprintw(i, j, "%c", map[i][j].ch);
-                    attroff(COLOR_PAIR(ORANGE_PORTAL));
+                    attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
                     break;
                 case END:
                     break;
@@ -97,6 +97,18 @@ void update() {
     bool done = false;
     looking_at = player;
     shooting = looking;
+    if (bportal != NULL) {
+        bportal->type = BLUE_PORTAL;
+        bportal->ch = PORTAL_C;
+    }
+    if (oportal != NULL) {
+        oportal->type = ORANGE_PORTAL;
+        oportal->ch = PORTAL_C;
+    }
+    if (player != NULL) {
+        player->type = PLAYER;
+        player->ch = PLAYER_C;
+    }
     while (!done) {
         switch (shooting) {
             case UP:
@@ -209,6 +221,13 @@ void play() {
                 looking = RIGHT;
                 break;
             case SHOOT_PORTAL:
+                shoot_portal();
+                break;
+            case TOGGLE_PORTAL:
+                if (curr_portal == BLUE)
+                    curr_portal = ORANGE;
+                else if (curr_portal == ORANGE)
+                    curr_portal = BLUE;
                 break;
             case QUIT_KEY:
                 if (display_menu(rows, cols) == MENU_CHOICE_EXIT)
@@ -225,12 +244,61 @@ void move_player(Direction dir) {
     if (dir == DOWN) row_offset = 1;
     if (dir == LEFT) col_offset = -1;
     if (dir == RIGHT) col_offset = 1;
+    if (map[player->row + row_offset][player->col + col_offset].type ==
+        BLUE_PORTAL) {
+        if (oportal == NULL) return;
+        player->type = EMPTY;
+        player->ch = EMPTY_C;
+        player = oportal;
+        return;
+    }
+    if (map[player->row + row_offset][player->col + col_offset].type ==
+        ORANGE_PORTAL) {
+        if (bportal == NULL) return;
+        player->type = EMPTY;
+        player->ch = EMPTY_C;
+        player = bportal;
+        return;
+    }
     if (map[player->row + row_offset][player->col + col_offset].type != EMPTY)
         return;
     Node *tmp = &map[player->row + row_offset][player->col + col_offset];
-    tmp->ch = PLAYER_C;
     tmp->type = PLAYER;
-    player->ch = EMPTY_C;
-    player->type = EMPTY;
+    tmp->ch = PLAYER_C;
+    if (player == bportal) {
+        player->type = BLUE_PORTAL;
+        player->ch = PORTAL_C;
+    } else if (player == oportal) {
+        player->type = ORANGE_PORTAL;
+        player->ch = PORTAL_C;
+    } else {
+        player->type = EMPTY;
+        player->ch = EMPTY_C;
+    }
     player = tmp;
+}
+
+void shoot_portal() {
+    if (looking_at == NULL) return;
+    if (curr_portal == BLUE) {
+        if (bportal != NULL) {
+            bportal->type = EMPTY;
+            bportal->ch = EMPTY_C;
+            bportal = NULL;
+            update();
+        }
+        bportal = looking_at;
+        bportal->type = BLUE_PORTAL;
+        bportal->ch = PORTAL_C;
+    } else {
+        if (oportal != NULL) {
+            oportal->type = EMPTY;
+            oportal->ch = EMPTY_C;
+            oportal = NULL;
+            update();
+        }
+        oportal = looking_at;
+        oportal->type = ORANGE_PORTAL;
+        oportal->ch = PORTAL_C;
+    }
 }
