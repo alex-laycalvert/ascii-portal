@@ -6,7 +6,9 @@
 #include <stdlib.h>
 
 Node **map;
-Node *player;
+Node *player, *bportal, *oportal, *looking_at;
+Direction looking, shooting;
+CurrentPortal curr_portal;
 int rows, cols;
 
 void init_map(const int t_rows, const int t_cols) {
@@ -25,11 +27,15 @@ void init_map(const int t_rows, const int t_cols) {
         }
     }
     init_level_000(rows, cols, map);
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
             if (map[i][j].type == PLAYER) player = &map[i][j];
-        }
-    }
+    bportal = NULL;
+    oportal = NULL;
+    looking_at = NULL;
+    curr_portal = BLUE;
+    looking = UP;
+    shooting = UP;
 }
 
 void destroy_map() {
@@ -77,11 +83,105 @@ void print_map() {
     }
 }
 
-void update() {}
+void update() {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (map[i][j].ch == VERT_BAR || map[i][j].ch == HOR_BAR ||
+                map[i][j].ch == LOOK_UP || map[i][j].ch == LOOK_DOWN ||
+                map[i][j].ch == LOOK_LEFT || map[i][j].ch == LOOK_RIGHT) {
+                Node *n = &map[i][j];
+                n->ch = EMPTY_C;
+            }
+        }
+    }
+    bool done = false;
+    looking_at = player;
+    shooting = looking;
+    while (!done) {
+        switch (shooting) {
+            case UP:
+                if (map[looking_at->row - 1][looking_at->col].type == EMPTY) {
+                    looking_at = &map[looking_at->row - 1][looking_at->col];
+                    looking_at->ch = VERT_BAR;
+                } else if (map[looking_at->row - 1][looking_at->col].type ==
+                           F_REFLECTOR) {
+                    shooting = RIGHT;
+                    looking_at = &map[looking_at->row - 1][looking_at->col];
+                } else if (map[looking_at->row + 1][looking_at->col].type ==
+                           B_REFLECTOR) {
+                    shooting = LEFT;
+                    looking_at = &map[looking_at->row - 1][looking_at->col];
+                } else {
+                    done = true;
+                    if (looking_at == player ||
+                        looking_at->type == F_REFLECTOR ||
+                        looking_at->type == B_REFLECTOR)
+                        break;
+                    looking_at->ch = LOOK_UP;
+                }
+                break;
+            case DOWN:
+                if (map[looking_at->row + 1][looking_at->col].type == EMPTY) {
+                    looking_at = &map[looking_at->row + 1][looking_at->col];
+                    looking_at->ch = VERT_BAR;
+                } else if (map[looking_at->row + 1][looking_at->col].type ==
+                           F_REFLECTOR) {
+                    shooting = LEFT;
+                    looking_at = &map[looking_at->row + 1][looking_at->col];
+                } else if (map[looking_at->row + 1][looking_at->col].type ==
+                           B_REFLECTOR) {
+                    shooting = RIGHT;
+                    looking_at = &map[looking_at->row + 1][looking_at->col];
+                } else {
+                    done = true;
+                    if (looking_at == player) break;
+                    looking_at->ch = LOOK_DOWN;
+                }
+                break;
+            case LEFT:
+                if (map[looking_at->row][looking_at->col - 1].type == EMPTY) {
+                    looking_at = &map[looking_at->row][looking_at->col - 1];
+                    looking_at->ch = HOR_BAR;
+                } else if (map[looking_at->row][looking_at->col - 1].type ==
+                           F_REFLECTOR) {
+                    shooting = DOWN;
+                    looking_at = &map[looking_at->row][looking_at->col - 1];
+                } else if (map[looking_at->row][looking_at->col - 1].type ==
+                           B_REFLECTOR) {
+                    shooting = UP;
+                    looking_at = &map[looking_at->row][looking_at->col - 1];
+                } else {
+                    done = true;
+                    if (looking_at == player) break;
+                    looking_at->ch = LOOK_LEFT;
+                }
+                break;
+            case RIGHT:
+                if (map[looking_at->row][looking_at->col + 1].type == EMPTY) {
+                    looking_at = &map[looking_at->row][looking_at->col + 1];
+                    looking_at->ch = HOR_BAR;
+                } else if (map[looking_at->row][looking_at->col + 1].type ==
+                           F_REFLECTOR) {
+                    shooting = UP;
+                    looking_at = &map[looking_at->row][looking_at->col + 1];
+                } else if (map[looking_at->row][looking_at->col + 1].type ==
+                           B_REFLECTOR) {
+                    shooting = DOWN;
+                    looking_at = &map[looking_at->row][looking_at->col + 1];
+                } else {
+                    done = true;
+                    if (looking_at == player) break;
+                    looking_at->ch = LOOK_RIGHT;
+                }
+                break;
+        }
+    }
+}
 
 void play() {
     bool keep_playing = true;
     do {
+        update();
         print_map();
         switch (getch()) {
             case MOVE_UP:
@@ -96,12 +196,25 @@ void play() {
             case MOVE_RIGHT:
                 move_player(RIGHT);
                 break;
+            case KEY_UP:
+                looking = UP;
+                break;
+            case KEY_DOWN:
+                looking = DOWN;
+                break;
+            case KEY_LEFT:
+                looking = LEFT;
+                break;
+            case KEY_RIGHT:
+                looking = RIGHT;
+                break;
+            case SHOOT_PORTAL:
+                break;
             case QUIT_KEY:
                 if (display_menu(rows, cols) == MENU_CHOICE_EXIT)
                     keep_playing = false;
                 break;
         }
-        update();
     } while (keep_playing);
 }
 

@@ -44,6 +44,8 @@
 #define LOOK_DOWN 'v'
 #define LOOK_LEFT '<'
 #define LOOK_RIGHT '>'
+#define VERT_BAR '|'
+#define HOR_BAR '-'
 
 typedef enum node_type {
     PLAYER,
@@ -75,5 +77,6 @@ void print_map();
 void update();
 void play();
 void move_player(Direction dir);
+void swap_nodes(Node *node1, Node *node2);
 
 #endif // PORTAL_H_

@@ -22,6 +22,9 @@ void init_level_000(const int rows, const int cols, Node **map) {
             } else if (i == rows / 2 && j == cols / 2) {
                 node.type = PLAYER;
                 node.ch = PLAYER_C;
+            } else if (i == rows / 4 && j == cols / 2) {
+                node.type = F_REFLECTOR;
+                node.ch = F_REFLECTOR_C;
             } else {
                 node.type = EMPTY;
                 node.ch = EMPTY_C;
