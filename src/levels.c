@@ -9,8 +9,7 @@ void init_level_walls(const int rows, const int cols, Node **map) {
             Node node;
             node.row = i;
             node.col = j;
-            if (i == 2 || (j == 0 && i > 1) || i == rows - 1 ||
-                (j == cols - 1 && i > 1)) {
+            if (i == 0 || j == 0 || i == rows - 1 || j == cols - 1) {
                 node.type = WALL;
                 node.ch = WALL_C;
             } else {
@@ -54,7 +53,7 @@ void init_level_001(const int rows, const int cols, Node **map) {
     init_level_walls(rows, cols, map);
 
     // setting player in top left
-    Node *player = &map[5][5];
+    Node *player = &map[10][10];
     player->type = PLAYER;
     player->ch = PLAYER_C;
 
