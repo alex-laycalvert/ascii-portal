@@ -119,7 +119,7 @@ void update() {
                            F_REFLECTOR) {
                     shooting = RIGHT;
                     looking_at = &map[looking_at->row - 1][looking_at->col];
-                } else if (map[looking_at->row + 1][looking_at->col].type ==
+                } else if (map[looking_at->row - 1][looking_at->col].type ==
                            B_REFLECTOR) {
                     shooting = LEFT;
                     looking_at = &map[looking_at->row - 1][looking_at->col];
