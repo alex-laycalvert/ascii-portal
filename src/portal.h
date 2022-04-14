@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 
+#define TROW_OFFSET 3
+#define TCOL_OFFSET 0
+
 #define MENU_SELECTED_COLOR_PAIR 1
 #define MENU_BORDER_COLOR_PAIR 2
 #define EMPTY_COLOR_PAIR 3
@@ -86,6 +89,7 @@ void init_map(const int rows, const int cols);
 void init_level(const int level);
 void clean_map();
 void destroy_map();
+void print_status_bar();
 void print_map();
 void update();
 bool play();

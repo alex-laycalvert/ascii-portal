@@ -13,10 +13,12 @@ Direction looking, shooting;
 CurrentPortal curr_portal;
 int rows, cols;
 bool completed;
+int curr_level;
+char *curr_level_name;
 
 void init_map(const int t_rows, const int t_cols) {
-    rows = t_rows;
-    cols = t_cols;
+    rows = t_rows - TROW_OFFSET;
+    cols = t_cols - TCOL_OFFSET;
     map = (Node **)malloc(rows * sizeof(Node *));
     if (map == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory\n");
@@ -32,12 +34,17 @@ void init_map(const int t_rows, const int t_cols) {
 }
 
 void init_level(const int level) {
-    if (level == 0)
+    curr_level = level;
+    if (level == 0) {
         init_level_000(rows, cols, map);
-    else if (level == 1)
+        curr_level_name = "Lonely";
+    } else if (level == 1) {
         init_level_001(rows, cols, map);
-    else
+        curr_level_name = "The Basics";
+    } else {
         init_level_001(rows, cols, map);
+        curr_level_name = "TODO";
+    }
     num_special_items = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -81,8 +88,6 @@ void init_level(const int level) {
     }
 }
 
-void clean_map() {}
-
 void destroy_map() {
     if (special_items != NULL) free(special_items);
     for (int i = 0; i < rows; i++) {
@@ -92,57 +97,133 @@ void destroy_map() {
     free(map);
 }
 
+void print_status_bar() {
+    // emptying status bar
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < cols; j++) mvprintw(i, j, " ");
+    move(0, 0);
+    addch(ACS_ULCORNER);
+    for (int i = 1; i < cols - 1; i++) {
+        move(0, i);
+        addch(ACS_HLINE);
+    }
+    move(0, cols - 1);
+    addch(ACS_URCORNER);
+    move(1, 0);
+    addch(ACS_VLINE);
+
+    // current level
+    mvprintw(1, 3, "Level %d: %s", curr_level, curr_level_name);
+
+    // current portal
+    mvprintw(1, cols / 3 - 5, "Current Portal: ");
+    if (curr_portal == BLUE) {
+        attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+        addch(BLUE_PORTAL_C);
+        attroff(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+    } else {
+        attron(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+        addch(ORANGE_PORTAL_C);
+        attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+    }
+
+    // which portals are set
+    mvprintw(1, 3 * cols / 5 - 5, "Portals: ");
+    if (bportal != NULL)
+        attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+    else
+        attron(COLOR_PAIR(WALL_COLOR_PAIR));
+    addch(BLUE_PORTAL_C);
+    if (bportal != NULL)
+        attroff(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+    else
+        attroff(COLOR_PAIR(WALL_COLOR_PAIR));
+    if (oportal != NULL)
+        attron(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+    else
+        attron(COLOR_PAIR(WALL_COLOR_PAIR));
+    addch(ORANGE_PORTAL_C);
+    if (oportal != NULL)
+        attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+    else
+        attroff(COLOR_PAIR(WALL_COLOR_PAIR));
+
+    // coins TODO
+    mvprintw(1, 4 * cols / 5 + 3, "Coins: coming soon...");
+
+    move(1, cols - 1);
+    addch(ACS_VLINE);
+    move(2, 0);
+    addch(ACS_LLCORNER);
+    for (int i = 1; i < cols - 1; i++) {
+        move(2, i);
+        addch(ACS_HLINE);
+    }
+    move(2, cols - 1);
+    addch(ACS_LRCORNER);
+}
+
 void print_map() {
     if (map == NULL) {
         fprintf(stderr, "Error: Map is not initialized\n");
         return;
     }
+    print_status_bar();
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             attron(A_BOLD);
             switch (map[i][j].type) {
                 case PLAYER:
                     attron(COLOR_PAIR(PLAYER_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(PLAYER_COLOR_PAIR));
                     break;
                 case WALL:
                     attron(COLOR_PAIR(WALL_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(WALL_COLOR_PAIR));
                     break;
                 case BLUE_PORTAL:
                     attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(BPORTAL_COLOR_PAIR));
                     break;
                 case ORANGE_PORTAL:
                     attron(COLOR_PAIR(OPORTAL_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
                     break;
                 case END:
                     attron(COLOR_PAIR(END_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(END_COLOR_PAIR));
                     break;
                 case BLOCK:
                     attron(COLOR_PAIR(BLOCK_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(BLOCK_COLOR_PAIR));
                     break;
                 case TOGGLE_BLOCK:
                     attron(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(TOGGLE_BLOCK_COLOR_PAIR));
                     break;
                 case HOLD_BUTTON:
                     attron(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     attroff(COLOR_PAIR(HOLD_BUTTON_COLOR_PAIR));
                     break;
                 default:
-                    mvprintw(i, j, "%c", map[i][j].ch);
+                    mvprintw(i + TROW_OFFSET, j + TCOL_OFFSET, "%c",
+                             map[i][j].ch);
                     break;
             }
             attroff(A_BOLD);
