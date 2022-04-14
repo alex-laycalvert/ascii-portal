@@ -14,6 +14,7 @@ CurrentPortal curr_portal;
 int rows, cols;
 bool completed;
 int curr_level;
+char *curr_level_name;
 
 void init_map(const int t_rows, const int t_cols) {
     rows = t_rows - TROW_OFFSET;
@@ -34,12 +35,16 @@ void init_map(const int t_rows, const int t_cols) {
 
 void init_level(const int level) {
     curr_level = level;
-    if (level == 0)
+    if (level == 0) {
         init_level_000(rows, cols, map);
-    else if (level == 1)
+        curr_level_name = "Lonely";
+    } else if (level == 1) {
         init_level_001(rows, cols, map);
-    else
+        curr_level_name = "The Basics";
+    } else {
         init_level_001(rows, cols, map);
+        curr_level_name = "TODO";
+    }
     num_special_items = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -93,6 +98,9 @@ void destroy_map() {
 }
 
 void print_status_bar() {
+    // emptying status bar
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < cols; j++) mvprintw(i, j, " ");
     move(0, 0);
     addch(ACS_ULCORNER);
     for (int i = 1; i < cols - 1; i++) {
@@ -104,8 +112,23 @@ void print_status_bar() {
     move(1, 0);
     addch(ACS_VLINE);
 
-    mvprintw(1, 3, "Level: %d", curr_level);
-    mvprintw(1, (cols / 5) + 3, "Portals: ");
+    // current level
+    mvprintw(1, 3, "Level %d: %s", curr_level, curr_level_name);
+
+    // current portal
+    mvprintw(1, cols / 3 - 5, "Current Portal: ");
+    if (curr_portal == BLUE) {
+        attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+        addch(BLUE_PORTAL_C);
+        attroff(COLOR_PAIR(BPORTAL_COLOR_PAIR));
+    } else {
+        attron(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+        addch(ORANGE_PORTAL_C);
+        attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
+    }
+
+    // which portals are set
+    mvprintw(1, 3 * cols / 5 - 5, "Portals: ");
     if (bportal != NULL)
         attron(COLOR_PAIR(BPORTAL_COLOR_PAIR));
     else
@@ -124,6 +147,9 @@ void print_status_bar() {
         attroff(COLOR_PAIR(OPORTAL_COLOR_PAIR));
     else
         attroff(COLOR_PAIR(WALL_COLOR_PAIR));
+
+    // coins TODO
+    mvprintw(1, 4 * cols / 5 + 3, "Coins: coming soon...");
 
     move(1, cols - 1);
     addch(ACS_VLINE);
