@@ -2,9 +2,9 @@
 
 A stupid simple implementation of something vaguely resembling the game Portal.
 
-***NOTE***: While the initial version of the game *is* functional, I'm in the
-process of refactoring the code and hopefully adding more features so this is a
-work in progress.
+***NOTE***: After thinking I knew exactly how I wanted to build this, I slowly
+started realizing I did not. It'll take me a little longer to get things done
+while I test some proof of concept things that I will use in this game.
 
 This game uses the ncurses library and terminal colors.
 
