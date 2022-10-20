@@ -1,8 +1,14 @@
+UNAME := $(shell uname)
+BUILD_DIR=bin
+
+ifeq ($(UNAME), Darwin)
+	CFLAGS=-I/usr/local/opt/ncurses/include -L/usr/local/opt/ncurses/lib -lncurses -lmenu -std=c++20
+endif
+
+ifeq ($(UNAME), Linux)
+	CFLAGS=-lncurses -lmenu -std=c++20
+endif
+
 portal:
-	gcc src/*.c -lncurses -o ./portal
-dev:
-	gcc -g3 -Wall -Wextra -fsanitize=address,undefined src/*.c -lncurses -o ./portal.dev
-clean:
-	rm -f ./portal
-	rm -f ./portal.dev
-	rm -rf ./portal.dev.dSYM
+	mkdir -p ./bin
+	$(CXX) ./src/*.cpp $(CFLAGS) -Wall -o ./$(BUILD_DIR)/portal
