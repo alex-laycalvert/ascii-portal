@@ -10,11 +10,12 @@ using std::getline;
 using std::ifstream;
 using std::string;
 
-Configuration::Configuration(string filename) {
-    this->setDefault();
+Config loadConfig(const string filename) {
+    Config config;
+    setDefault(&config);
     ifstream config_file(filename);
     if (!config_file.is_open()) {
-        return;
+        return config;
     }
     string line = "";
     string key = "";
@@ -33,26 +34,42 @@ Configuration::Configuration(string filename) {
             key += c;
         }
         if (key == MOVE_UP_KEY_KEY) {
-            this->moveUpKey = value;
+            config.moveUpKey = value;
         } else if (key == MOVE_DOWN_KEY_KEY) {
-            this->moveDownKey = value;
+            config.moveDownKey = value;
         } else if (key == MOVE_LEFT_KEY_KEY) {
-            this->moveLeftKey = value;
+            config.moveLeftKey = value;
         } else if (key == MOVE_RIGHT_KEY_KEY) {
-            this->moveRightKey = value;
+            config.moveRightKey = value;
+        } else if (key == CHANGE_DIR_UP_KEY_KEY) {
+            config.changeDirUpKey = value;
+        } else if (key == CHANGE_DIR_DOWN_KEY_KEY) {
+            config.changeDirDownKey = value;
+        } else if (key == CHANGE_DIR_LEFT_KEY_KEY) {
+            config.changeDirLeftKey = value;
+        } else if (key == CHANGE_DIR_RIGHT_KEY_KEY) {
+            config.changeDirRightKey = value;
+        } else if (key == SHOOT_PORTAL_KEY_KEY) {
+            config.shootPortalKey = value;
         } else if (key == RESTART_KEY_KEY) {
-            this->restartKey = value;
+            config.restartKey = value;
         } else if (key == QUIT_KEY_KEY) {
-            this->quitKey = value;
+            config.quitKey = value;
         }
     }
+    return config;
 }
 
-void Configuration::setDefault() {
-    this->moveUpKey = DEFAULT_MOVE_UP_KEY;
-    this->moveDownKey = DEFAULT_MOVE_DOWN_KEY;
-    this->moveLeftKey = DEFAULT_MOVE_LEFT_KEY;
-    this->moveRightKey = DEFAULT_MOVE_RIGHT_KEY;
-    this->restartKey = DEFAULT_RESTART_KEY;
-    this->quitKey = DEFAULT_QUIT_KEY;
+void setDefault(Config *config) {
+    config->moveUpKey = DEFAULT_MOVE_UP_KEY;
+    config->moveDownKey = DEFAULT_MOVE_DOWN_KEY;
+    config->moveLeftKey = DEFAULT_MOVE_LEFT_KEY;
+    config->moveRightKey = DEFAULT_MOVE_RIGHT_KEY;
+    config->changeDirUpKey = DEFAULT_CHANGE_DIR_UP_KEY;
+    config->changeDirDownKey = DEFAULT_CHANGE_DIR_DOWN_KEY;
+    config->changeDirLeftKey = DEFAULT_CHANGE_DIR_LEFT_KEY;
+    config->changeDirRightKey = DEFAULT_CHANGE_DIR_RIGHT_KEY;
+    config->shootPortalKey = DEFAULT_SHOOT_PORTAL_KEY;
+    config->restartKey = DEFAULT_RESTART_KEY;
+    config->quitKey = DEFAULT_QUIT_KEY;
 }
