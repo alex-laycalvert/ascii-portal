@@ -15,8 +15,11 @@ the rust toolchain to run the project.
 git clone https://github.com/alex-laycalvert/ascii-portal
 cd ascii-portal/
 
-# Run the project with cargo where <filename> is the name of
-# any `*.portal` file such as the provided `My_First_Level.portal`
+# Run the project with cargo 
+cargo run
+
+# (OPTIONAL) Run the project with a provided file where <filename> is
+# the name of any `*.portal` file such as the provided `My_First_Level.portal`
 cargo run -- <filename>
 
 ```
