@@ -9,6 +9,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use node::*;
+use std::fs;
 use std::io::Stdout;
 
 /// Represents a level of `ascii-portal`.
@@ -18,6 +19,8 @@ pub struct Level {
     looking_at: (u16, u16),
     rows: u16,
     cols: u16,
+    term_rows: u16,
+    term_cols: u16,
     row_offset: u16,
     col_offset: u16,
 }
@@ -135,16 +138,74 @@ impl Level {
 
     /// Instantiates a new `Level` struct where `rows` and `cols` refer to the size of the
     /// level and `term_rows` and `term_cols` refer to the size of the terminal window.
-    pub fn new(rows: u16, cols: u16, term_rows: u16, term_cols: u16) -> Level {
+    pub fn new(term_rows: u16, term_cols: u16) -> Level {
         Level {
             nodes: vec![],
             selected_portal: NodeType::BluePortal,
             looking_at: (0, 0),
-            rows,
-            cols,
-            row_offset: (term_rows - rows) / 2,
-            col_offset: (term_cols - cols) / 2,
+            rows: 0,
+            cols: 0,
+            term_rows,
+            term_cols,
+            row_offset: 0,
+            col_offset: 0,
         }
+    }
+
+    /// Parses the contetns from the given `filename` and initializes the level with
+    /// those contents if able to.
+    pub fn generate_from_file(&mut self, filename: String) -> Result<(u16, u16), String> {
+        let file_content = match fs::read_to_string(filename) {
+            Ok(c) => c,
+            Err(e) => return Err(e.to_string()),
+        };
+        let lines: Vec<&str> = file_content.trim().split('\n').collect();
+        let total_rows = lines.len() as u16;
+        let total_cols: u16;
+        if total_rows > 2 {
+            total_cols = lines[0].len() as u16
+        } else {
+            return Err("file contains an empty level".to_string());
+        }
+        if total_cols <= 2 {
+            return Err("file contains an empty level".to_string());
+        }
+        for (r, line) in lines.iter().enumerate() {
+            if r == 0 || r as u16 == total_cols - 1 {
+                for c in line.chars() {
+                    if c != 'I' {
+                        return Err("file must surround the level entirely in an even box of `I` characters representing the walls".to_string());
+                    }
+                }
+                continue;
+            }
+            if line.len() < total_cols as usize {
+                return Err("all lines in the file must be of equal length and be surrounded by an even box of `I` characters representing the walls".to_string());
+            }
+            for (c, ch) in line.chars().enumerate() {
+                if c == 0 || c == total_cols as usize - 1 {
+                    if ch != 'I' {
+                        return Err("file must surround the level entirely in an even box of `I` characters representing the walls".to_string());
+                    }
+                    continue;
+                }
+                match ch {
+                    'X' => self
+                        .nodes
+                        .push(Node::new(NodeType::Player, r as u16, c as u16)),
+                    'B' => {
+                        self.nodes
+                            .push(Node::new(NodeType::Block, r as u16, c as u16));
+                    }
+                    _ => (),
+                }
+            }
+        }
+        self.rows = total_rows;
+        self.cols = total_cols;
+        self.row_offset = (self.term_rows - self.rows) / 2;
+        self.col_offset = (self.term_cols - self.cols) / 2;
+        Ok((self.rows, self.cols))
     }
 
     /// Sets the position of the player of the level. Instantiates a new `Node` with type
@@ -460,6 +521,9 @@ impl Level {
     }
 
     pub fn play(&mut self, stdout: &mut Stdout) -> crossterm::Result<()> {
+        if self.nodes.len() < 1 {
+            return Ok(());
+        }
         enable_raw_mode()?;
         stdout.execute(cursor::Hide)?;
         loop {
