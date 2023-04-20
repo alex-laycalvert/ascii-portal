@@ -555,7 +555,7 @@ impl Level {
                         KeyCode::Right => self
                             .change_player_direction(Direction::RIGHT)
                             .expect("could not change player direction"),
-                        KeyCode::Char('t') => {
+                        KeyCode::Tab => {
                             self.toggle_portal().expect("could not toggle portal")
                         }
                         KeyCode::Char(' ') => self.shoot_portal().expect("could not shoot portal"),
