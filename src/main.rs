@@ -19,8 +19,10 @@ struct Node {
     pub ch: char,
     pub fg_color: Color,
     pub bg_color: Color,
+    pub dir: Direction,
 }
 
+#[derive(PartialEq, Eq)]
 struct Direction(i16, i16);
 
 impl Direction {
@@ -42,6 +44,7 @@ impl Node {
             ch,
             fg_color,
             bg_color,
+            dir: Direction::DOWN,
         }
     }
 }
@@ -53,6 +56,28 @@ struct Level {
 }
 
 impl Level {
+    /// Returns the index of the player on the level in the `nodes` vector.
+    fn get_player(&self) -> Option<usize> {
+        match self
+            .nodes
+            .iter()
+            .position(|n| matches!(n.node_type, NodeType::Player))
+        {
+            Some(i) => Some(i),
+            None => None,
+        }
+    }
+
+    /// Returns the index of the node at the given position on the level in the `nodes` vector.
+    fn get_node_by_position(&self, row: u16, col: u16) -> Option<usize> {
+        match self.nodes.iter().position(|n| n.row == row && n.col == col) {
+            Some(i) => Some(i),
+            None => None,
+        }
+    }
+
+    /// Instantiates a new `Level` struct where `rows` and `cols` is the size of the terminal
+    /// window.
     pub fn new(rows: u16, cols: u16) -> Level {
         Level {
             nodes: vec![],
@@ -61,12 +86,13 @@ impl Level {
         }
     }
 
+    /// Sets the position of the player of the level. Instantiates a new `Node` with type
+    /// `Player` if the player does not currently exist on the level.
     pub fn set_player(&mut self, row: u16, col: u16) -> Result<(), &str> {
         if row == 0 || row == self.rows - 1 || col == 0 || col == self.cols - 1 {
             return Err("cannot move player to be on the walls of the level");
         }
-        let player_index = self.get_player();
-        match player_index {
+        match self.get_player() {
             Some(i) => {
                 self.nodes[i].row = row;
                 self.nodes[i].col = col;
@@ -76,27 +102,21 @@ impl Level {
         Ok(())
     }
 
-    pub fn get_player(&self) -> Option<usize> {
-        let player_index = self
-            .nodes
-            .iter()
-            .position(|n| matches!(n.node_type, NodeType::Player));
-        match player_index {
-            Some(i) => Some(i),
-            None => None,
-        }
-    }
-
+    /// Attempts to move the player in the specified direction.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the player has not been set on the level.
     pub fn move_player(&mut self, direction: Direction) -> Result<(), &str> {
         let player_index = self
             .get_player()
             .expect("attempted to move a non-existent player");
         let player = &self.nodes[player_index];
-        let node_index: Option<usize> = self.nodes.iter().position(|n| {
+        match self.nodes.iter().position(|n| {
             n.row as i16 == player.row as i16 + direction.0
                 && n.col as i16 == player.col as i16 + direction.1
-        });
-        match node_index {
+        }) {
+            Some(_) => return Ok(()),
             None => {
                 let new_row = (self.nodes[player_index].row as i16 + direction.0) as u16;
                 let new_col = (self.nodes[player_index].col as i16 + direction.1) as u16;
@@ -107,11 +127,33 @@ impl Level {
                     self.nodes[player_index].col = new_col;
                 }
             }
-            _ => (),
-        }
+        };
         Ok(())
     }
 
+    /// Attempts to change the direction that the player is looking in
+    ///
+    /// # Panics
+    ///
+    /// Panics if the player has not been set on the level.
+    pub fn change_player_direction(&mut self, direction: Direction) -> Result<(), &str> {
+        let player_index = self
+            .get_player()
+            .expect("attempted to move a non-existent player");
+        let player = &self.nodes[player_index];
+        match self.nodes.iter().position(|n| {
+            n.row as i16 == player.row as i16 + direction.0
+                && n.col as i16 == player.col as i16 + direction.1
+        }) {
+            Some(_) => return Ok(()),
+            None => {
+                self.nodes[player_index].dir = direction;
+            }
+        };
+        Ok(())
+    }
+
+    /// Draws the current level, including walls, on the terminal window.
     pub fn draw(&self, stdout: &mut Stdout) -> crossterm::Result<()> {
         stdout.execute(Clear(ClearType::All))?;
         for c in 0..self.cols {
@@ -156,7 +198,106 @@ impl Level {
                 ResetColor
             )?;
         }
+
+        let player_index = match self.get_player() {
+            Some(i) => i,
+            None => return Ok(()),
+        };
+        let player = &self.nodes[player_index];
+        let first_nonempty_index: Option<usize> = match player.dir {
+            Direction::UP => self
+                .nodes
+                .iter()
+                .position(|n| n.row < player.row && n.col == player.col),
+            Direction::DOWN => self
+                .nodes
+                .iter()
+                .position(|n| n.row < player.row && n.col == player.col),
+            Direction::LEFT => self
+                .nodes
+                .iter()
+                .position(|n| n.row < player.row && n.col == player.col),
+
+            Direction::RIGHT => self
+                .nodes
+                .iter()
+                .position(|n| n.row < player.row && n.col == player.col),
+            _ => None,
+        };
+        match first_nonempty_index {
+            Some(_) => (),
+            None => {
+                let farthest_position: (u16, u16) = match player.dir {
+                    Direction::UP => (0, player.col),
+                    Direction::DOWN => (self.rows - 1, player.col),
+                    Direction::LEFT => (player.row, 0),
+                    Direction::RIGHT => (player.row, self.cols - 1),
+                    _ => (0, 0),
+                };
+                match player.dir {
+                    Direction::UP => {
+                        for i in (farthest_position.0 + 1)..player.row {
+                            execute!(stdout, cursor::MoveTo(farthest_position.1, i), Print('('))?;
+                        }
+                    }
+                    Direction::DOWN => {
+                        for i in (player.row + 1)..farthest_position.0 {
+                            if i == farthest_position.0 {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(farthest_position.0, i),
+                                    Print('v')
+                                )?;
+                            } else {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(farthest_position.0, i),
+                                    Print('|')
+                                )?;
+                            }
+                        }
+                    }
+                    Direction::LEFT => {
+                        for i in (farthest_position.1 + 1)..player.col {
+                            if i == farthest_position.1 + 1 {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(i, farthest_position.0),
+                                    Print('<')
+                                )?;
+                            } else {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(i, farthest_position.0),
+                                    Print('-')
+                                )?;
+                            }
+                        }
+                    }
+                    Direction::RIGHT => {
+                        for i in (player.col + 1)..farthest_position.1 {
+                            if i == farthest_position.1 - 1 {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(i, farthest_position.0),
+                                    Print('>')
+                                )?;
+                            } else {
+                                execute!(
+                                    stdout,
+                                    cursor::MoveTo(i, farthest_position.0),
+                                    Print('-')
+                                )?;
+                            }
+                        }
+                    }
+                    _ => (),
+                }
+            }
+        }
+
         stdout.execute(cursor::MoveTo(0, 0))?;
+
         Ok(())
     }
 }
@@ -176,18 +317,30 @@ fn main() -> crossterm::Result<()> {
         match read().unwrap() {
             Event::Key(event) => {
                 match event.code {
-                    KeyCode::Up | KeyCode::Char('w') => level
+                    KeyCode::Char('w') => level
                         .move_player(Direction::UP)
                         .expect("could not move player"),
-                    KeyCode::Down | KeyCode::Char('s') => level
+                    KeyCode::Char('s') => level
                         .move_player(Direction::DOWN)
                         .expect("could not move player"),
-                    KeyCode::Left | KeyCode::Char('a') => level
+                    KeyCode::Char('a') => level
                         .move_player(Direction::LEFT)
                         .expect("could not move player"),
-                    KeyCode::Right | KeyCode::Char('d') => level
+                    KeyCode::Char('d') => level
                         .move_player(Direction::RIGHT)
                         .expect("could not move player"),
+                    KeyCode::Up => level
+                        .change_player_direction(Direction::UP)
+                        .expect("could not change player direction"),
+                    KeyCode::Down => level
+                        .change_player_direction(Direction::DOWN)
+                        .expect("could not change player direction"),
+                    KeyCode::Left => level
+                        .change_player_direction(Direction::LEFT)
+                        .expect("could not change player direction"),
+                    KeyCode::Right => level
+                        .change_player_direction(Direction::RIGHT)
+                        .expect("could not change player direction"),
                     KeyCode::Char('q') => break,
                     _ => (),
                 };
