@@ -26,6 +26,9 @@ struct Node {
     pub dir: Direction,
 }
 
+/// A cardinal direction (`UP`, `DOWN`, `LEFT`, or `RIGHT`) that a node
+/// can be facing/looking in. Contains the unit-coordinates of the direction
+/// relative to the node.
 #[derive(PartialEq, Eq)]
 struct Direction(i16, i16);
 
@@ -45,12 +48,12 @@ impl Node {
                 'O',
                 Color::Rgb {
                     r: 255,
-                    g: 255,
+                    g: 127,
                     b: 0,
                 },
                 Color::Rgb {
                     r: 255,
-                    g: 255,
+                    g: 127,
                     b: 0,
                 },
             ),
@@ -68,6 +71,7 @@ impl Node {
     }
 }
 
+/// Represents a level of `ascii-portal`.
 struct Level {
     nodes: Vec<Node>,
     selected_portal: NodeType,
@@ -77,49 +81,68 @@ struct Level {
 }
 
 impl Level {
+    /// Sets the value `looking_at` to be the (`row`, `col`) location of the
+    /// farthest empty space in the direction the player is looking in.
     fn set_player_looking_at(&mut self) -> Result<(), &str> {
         let player_index = self.get_player().expect("failed to get player");
         let player = &self.nodes[player_index];
-        let first_nonempty_index: Option<usize> = match player.dir {
-            Direction::UP => self
-                .nodes
-                .iter()
-                .position(|n| n.row < player.row && n.col == player.col),
-            Direction::DOWN => self
-                .nodes
-                .iter()
-                .position(|n| n.row > player.row && n.col == player.col),
-            Direction::LEFT => self
-                .nodes
-                .iter()
-                .position(|n| n.row == player.row && n.col < player.col),
-
-            Direction::RIGHT => self
-                .nodes
-                .iter()
-                .position(|n| n.row == player.row && n.col > player.col),
-            _ => None,
-        };
-        match first_nonempty_index {
-            Some(i) => {
-                let node = &self.nodes[i];
-                self.looking_at = match player.dir {
-                    Direction::UP => (node.row, player.col),
-                    Direction::DOWN => (node.row, player.col),
-                    Direction::LEFT => (player.row, node.col),
-                    Direction::RIGHT => (player.row, node.col),
-                    _ => (0, 0),
+        let mut current_non_empty_row: u16 = 0;
+        let mut current_non_empty_col: u16 = 0;
+        let mut closest_non_empty_index: i16 = -1;
+        for (i, n) in self.nodes.iter().enumerate() {
+            match player.dir {
+                Direction::UP => {
+                    if n.row < player.row && n.col == player.col {
+                        if current_non_empty_row == 0 || n.row > current_non_empty_row {
+                            current_non_empty_row = n.row;
+                            closest_non_empty_index = i as i16;
+                        }
+                    }
                 }
+                Direction::DOWN => {
+                    if n.row > player.row && n.col == player.col {
+                        if current_non_empty_row == 0 || n.row < current_non_empty_row {
+                            current_non_empty_row = n.row;
+                            closest_non_empty_index = i as i16;
+                        }
+                    }
+                }
+                Direction::LEFT => {
+                    if n.row == player.row && n.col < player.col {
+                        if current_non_empty_col == 0 || n.col > current_non_empty_col {
+                            current_non_empty_col = n.col;
+                            closest_non_empty_index = i as i16;
+                        }
+                    }
+                }
+                Direction::RIGHT => {
+                    if n.row == player.row && n.col > player.col {
+                        if current_non_empty_col == 0 || n.col < current_non_empty_col {
+                            current_non_empty_col = n.col;
+                            closest_non_empty_index = i as i16;
+                        }
+                    }
+                }
+                _ => closest_non_empty_index = 0,
             }
-            None => {
-                self.looking_at = match player.dir {
-                    Direction::UP => (0, player.col),
-                    Direction::DOWN => (self.rows - 1, player.col),
-                    Direction::LEFT => (player.row, 0),
-                    Direction::RIGHT => (player.row, self.cols - 1),
-                    _ => (0, 0),
-                };
-            }
+        }
+        if closest_non_empty_index >= 0 {
+            let node = &self.nodes[closest_non_empty_index as usize];
+            self.looking_at = match player.dir {
+                Direction::UP => (node.row, player.col),
+                Direction::DOWN => (node.row, player.col),
+                Direction::LEFT => (player.row, node.col),
+                Direction::RIGHT => (player.row, node.col),
+                _ => (0, 0),
+            };
+        } else {
+            self.looking_at = match player.dir {
+                Direction::UP => (0, player.col),
+                Direction::DOWN => (self.rows - 1, player.col),
+                Direction::LEFT => (player.row, 0),
+                Direction::RIGHT => (player.row, self.cols - 1),
+                _ => (0, 0),
+            };
         }
         Ok(())
     }
@@ -216,22 +239,36 @@ impl Level {
             .get_player()
             .expect("attempted to move a non-existent player");
         let player = &self.nodes[player_index];
-        match self.nodes.iter().position(|n| {
-            n.row as i16 == player.row as i16 + direction.0
-                && n.col as i16 == player.col as i16 + direction.1
-        }) {
-            Some(_) => return Ok(()),
-            None => {
-                let new_row = (self.nodes[player_index].row as i16 + direction.0) as u16;
-                let new_col = (self.nodes[player_index].col as i16 + direction.1) as u16;
-                if new_row > 0 && new_row < self.rows - 1 {
-                    self.nodes[player_index].row = new_row;
+        if let Some(i) = self.get_node_by_position(
+            (player.row as i16 + direction.0) as u16,
+            (player.col as i16 + direction.1) as u16,
+        ) {
+            let node = &self.nodes[i];
+            match node.node_type {
+                NodeType::BluePortal => {
+                    if let Some(index) = self.get_orange_portal() {
+                        self.nodes[player_index].row = self.nodes[index].row;
+                        self.nodes[player_index].col = self.nodes[index].col;
+                    }
                 }
-                if new_col > 0 && new_col < self.cols - 1 {
-                    self.nodes[player_index].col = new_col;
+                NodeType::OrangePortal => {
+                    if let Some(index) = self.get_blue_portal() {
+                        self.nodes[player_index].row = self.nodes[index].row;
+                        self.nodes[player_index].col = self.nodes[index].col;
+                    }
                 }
+                _ => (),
             }
-        };
+        } else {
+            let new_row = (self.nodes[player_index].row as i16 + direction.0) as u16;
+            let new_col = (self.nodes[player_index].col as i16 + direction.1) as u16;
+            if new_row > 0 && new_row < self.rows - 1 {
+                self.nodes[player_index].row = new_row;
+            }
+            if new_col > 0 && new_col < self.cols - 1 {
+                self.nodes[player_index].col = new_col;
+            }
+        }
         self.set_player_looking_at()?;
         Ok(())
     }
@@ -259,10 +296,16 @@ impl Level {
         let player = &self.nodes[player_index];
         let row = (self.looking_at.0 as i16 - player.dir.0) as u16;
         let col = (self.looking_at.1 as i16 - player.dir.1) as u16;
+        if player.row == row && player.col == col {
+            return Ok(());
+        }
         match portal_index {
             Some(i) => {
-                self.nodes[i].row = row;
-                self.nodes[i].col = col;
+                if self.nodes[i].row != self.looking_at.0 || self.nodes[i].col != self.looking_at.1
+                {
+                    self.nodes[i].row = row;
+                    self.nodes[i].col = col;
+                }
             }
             None => self
                 .nodes
@@ -272,11 +315,14 @@ impl Level {
         Ok(())
     }
 
-    pub fn toggle_portal(&mut self) {
+    /// Toggles the currently selected portal that the player will shoot.
+    /// Either `BluePortal` or `OrangePortal`.
+    pub fn toggle_portal(&mut self) -> Result<(), &str> {
         match self.selected_portal {
             NodeType::BluePortal => self.selected_portal = NodeType::OrangePortal,
             _ => self.selected_portal = NodeType::BluePortal,
         }
+        self.set_player_looking_at()
     }
 
     /// Draws the current level, including walls, on the terminal window.
@@ -315,6 +361,9 @@ impl Level {
             )?;
         }
         for (_, n) in self.nodes.iter().enumerate() {
+            if matches!(n.node_type, NodeType::Player) {
+                continue;
+            }
             execute!(
                 stdout,
                 cursor::MoveTo(n.col as u16, n.row as u16),
@@ -330,7 +379,27 @@ impl Level {
             None => return Ok(()),
         };
         let player = &self.nodes[player_index];
+        execute!(
+            stdout,
+            cursor::MoveTo(player.col as u16, player.row as u16),
+            SetForegroundColor(player.fg_color),
+            SetBackgroundColor(player.bg_color),
+            Print(player.ch),
+            ResetColor
+        )?;
 
+        if matches!(self.selected_portal, NodeType::OrangePortal) {
+            execute!(
+                stdout,
+                SetForegroundColor(Color::Rgb {
+                    r: 255,
+                    g: 127,
+                    b: 0
+                })
+            )?;
+        } else {
+            execute!(stdout, SetForegroundColor(Color::Blue))?;
+        }
         match player.dir {
             Direction::UP => {
                 for i in (self.looking_at.0 + 1)..player.row {
@@ -418,7 +487,7 @@ fn main() -> crossterm::Result<()> {
                     KeyCode::Right => level
                         .change_player_direction(Direction::RIGHT)
                         .expect("could not change player direction"),
-                    KeyCode::Char('t') => level.toggle_portal(),
+                    KeyCode::Char('t') => level.toggle_portal().expect("could not toggle portal"),
                     KeyCode::Char(' ') => level.shoot_portal().expect("could not shoot portal"),
                     KeyCode::Char('q') => break,
                     _ => (),
