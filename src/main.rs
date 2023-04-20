@@ -7,11 +7,12 @@ use std::io::stdout;
 
 fn main() -> crossterm::Result<()> {
     let args: Vec<String> = args().collect();
+    let filename: String;
     if args.len() < 2 {
-        println!("Please provide a `*.portal` file to read the level from");
-        return Ok(());
+        filename = "My_First_Level.portal".to_string();
+    } else {
+        filename = args[1].to_string();
     }
-    let filename = args[1].to_string();
     let (cols, rows) = size()?;
     let mut stdout = stdout();
 
