@@ -196,11 +196,19 @@ impl Level {
                     'B' => {
                         self.nodes
                             .push(Node::new(NodeType::Block, r as u16, c as u16));
-                    },
+                    }
                     'I' => {
                         self.nodes
                             .push(Node::new(NodeType::Wall, r as u16, c as u16));
-                    },
+                    }
+                    'S' => {
+                        self.nodes
+                            .push(Node::new(NodeType::Switch, r as u16, c as u16));
+                    }
+                    'T' => {
+                        self.nodes
+                            .push(Node::new(NodeType::ToggleBlock, r as u16, c as u16));
+                    }
                     _ => (),
                 }
             }
@@ -251,8 +259,7 @@ impl Level {
         let players_next_row = (player.row as i16 + direction.0) as u16;
         let players_next_col = (player.col as i16 + direction.1) as u16;
         if let Some(i) = self.get_node_by_position(players_next_row, players_next_col) {
-            let node = &self.nodes[i];
-            match node.node_type {
+            match self.nodes[i].node_type {
                 NodeType::BluePortal => {
                     if let Some(index) = self.get_orange_portal() {
                         self.nodes[player_index].row = self.nodes[index].row;
@@ -281,6 +288,19 @@ impl Level {
                     self.set_player(players_next_row, players_next_col).ok();
                     self.nodes[i].row = blocks_next_row;
                     self.nodes[i].col = blocks_next_col;
+                }
+                NodeType::Switch => {
+                    self.nodes[i].toggled = !self.nodes[i].toggled;
+                    for index in 0..self.nodes.len() {
+                        if matches!(self.nodes[index].node_type, NodeType::ToggleBlock) {
+                            self.nodes[index].toggled = !self.nodes[index].toggled;
+                        }
+                    }
+                }
+                NodeType::ToggleBlock => {
+                    if self.nodes[i].toggled {
+                        self.set_player(players_next_row, players_next_col).ok();
+                    }
                 }
                 _ => (),
             }
@@ -382,14 +402,25 @@ impl Level {
             if matches!(n.node_type, NodeType::Player) {
                 continue;
             }
+            if matches!(n.node_type, NodeType::ToggleBlock) && n.toggled {
+                continue;
+            }
             execute!(
                 stdout,
                 cursor::MoveTo(
                     n.col as u16 + self.col_offset,
                     n.row as u16 + self.row_offset
                 ),
-                SetForegroundColor(n.fg_color),
-                SetBackgroundColor(n.bg_color),
+                SetForegroundColor(if n.toggled {
+                    n.toggled_fg_color
+                } else {
+                    n.fg_color
+                }),
+                SetBackgroundColor(if n.toggled {
+                    n.toggled_bg_color
+                } else {
+                    n.bg_color
+                }),
                 Print(n.ch),
                 ResetColor
             )?;
@@ -559,9 +590,7 @@ impl Level {
                         KeyCode::Right => self
                             .change_player_direction(Direction::RIGHT)
                             .expect("could not change player direction"),
-                        KeyCode::Tab => {
-                            self.toggle_portal().expect("could not toggle portal")
-                        }
+                        KeyCode::Tab => self.toggle_portal().expect("could not toggle portal"),
                         KeyCode::Char(' ') => self.shoot_portal().expect("could not shoot portal"),
                         KeyCode::Char('q') => break,
                         _ => (),

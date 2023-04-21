@@ -7,6 +7,8 @@ pub enum NodeType {
     OrangePortal,
     Block,
     Wall,
+    Switch,
+    ToggleBlock,
 }
 
 pub struct Node {
@@ -16,7 +18,10 @@ pub struct Node {
     pub ch: char,
     pub fg_color: Color,
     pub bg_color: Color,
+    pub toggled_fg_color: Color,
+    pub toggled_bg_color: Color,
     pub dir: Direction,
+    pub toggled: bool,
 }
 
 /// A cardinal direction (`UP`, `DOWN`, `LEFT`, or `RIGHT`) that a node
@@ -34,11 +39,21 @@ impl Direction {
 
 impl Node {
     pub fn new(node_type: NodeType, row: u16, col: u16) -> Node {
-        let (ch, fg_color, bg_color) = match node_type {
-            NodeType::Player => ('X', Color::Green, Color::Green),
-            NodeType::BluePortal => ('O', Color::Blue, Color::Blue),
+        let (ch, fg_color, bg_color, toggled_fg_color, toggled_bg_color) = match node_type {
+            NodeType::Player => ('X', Color::Green, Color::Green, Color::Green, Color::Green),
+            NodeType::BluePortal => ('O', Color::Blue, Color::Blue, Color::Blue, Color::Blue),
             NodeType::OrangePortal => (
                 'O',
+                Color::Rgb {
+                    r: 255,
+                    g: 127,
+                    b: 0,
+                },
+                Color::Rgb {
+                    r: 255,
+                    g: 127,
+                    b: 0,
+                },
                 Color::Rgb {
                     r: 255,
                     g: 127,
@@ -62,8 +77,26 @@ impl Node {
                     g: 100,
                     b: 100,
                 },
+                Color::Rgb {
+                    r: 100,
+                    g: 100,
+                    b: 100,
+                },
+                Color::Rgb {
+                    r: 100,
+                    g: 100,
+                    b: 100,
+                },
             ),
-            NodeType::Wall => ('I', Color::White, Color::White),
+            NodeType::Wall => ('I', Color::White, Color::White, Color::White, Color::White),
+            NodeType::Switch => ('S', Color::Red, Color::Red, Color::Yellow, Color::Yellow),
+            NodeType::ToggleBlock => (
+                'T',
+                Color::Magenta,
+                Color::Magenta,
+                Color::Magenta,
+                Color::Magenta,
+            ),
         };
         Node {
             node_type,
@@ -72,7 +105,10 @@ impl Node {
             ch,
             fg_color,
             bg_color,
+            toggled_fg_color,
+            toggled_bg_color,
             dir: Direction::DOWN,
+            toggled: false,
         }
     }
 }
