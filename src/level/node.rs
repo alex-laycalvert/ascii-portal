@@ -9,6 +9,21 @@ pub enum NodeType {
     Wall,
     Switch,
     ToggleBlock,
+    Button,
+}
+
+impl NodeType {
+    pub fn from(ch: char) -> Option<NodeType> {
+        match ch {
+            'X' => Some(NodeType::Player),
+            'K' => Some(NodeType::Block),
+            'I' => Some(NodeType::Wall),
+            'S' => Some(NodeType::Switch),
+            'B' => Some(NodeType::Button),
+            'T' => Some(NodeType::ToggleBlock),
+            _ => None,
+        }
+    }
 }
 
 pub struct Node {
@@ -66,7 +81,7 @@ impl Node {
                 },
             ),
             NodeType::Block => (
-                'B',
+                'K',
                 Color::Rgb {
                     r: 100,
                     g: 100,
@@ -89,7 +104,8 @@ impl Node {
                 },
             ),
             NodeType::Wall => ('I', Color::White, Color::White, Color::White, Color::White),
-            NodeType::Switch => ('S', Color::Red, Color::Red, Color::Yellow, Color::Yellow),
+            NodeType::Switch => ('S', Color::Yellow, Color::Red, Color::Red, Color::Yellow),
+            NodeType::Button => ('B', Color::Yellow, Color::Red, Color::Red, Color::Yellow),
             NodeType::ToggleBlock => (
                 'T',
                 Color::Magenta,
