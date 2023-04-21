@@ -196,7 +196,11 @@ impl Level {
                     'B' => {
                         self.nodes
                             .push(Node::new(NodeType::Block, r as u16, c as u16));
-                    }
+                    },
+                    'I' => {
+                        self.nodes
+                            .push(Node::new(NodeType::Wall, r as u16, c as u16));
+                    },
                     _ => (),
                 }
             }
@@ -568,6 +572,7 @@ impl Level {
         }
 
         disable_raw_mode()?;
+        stdout.execute(cursor::Show)?;
         Ok(())
     }
 }

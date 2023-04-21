@@ -6,6 +6,7 @@ pub enum NodeType {
     BluePortal,
     OrangePortal,
     Block,
+    Wall,
 }
 
 pub struct Node {
@@ -62,6 +63,7 @@ impl Node {
                     b: 100,
                 },
             ),
+            NodeType::Wall => ('I', Color::White, Color::White),
         };
         Node {
             node_type,
